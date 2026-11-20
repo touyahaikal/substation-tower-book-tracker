@@ -1,0 +1,2055 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1a1a1a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>:root{padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Substation Tower Book Tracker</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+/* Layout: editorial dossier grid. Three modes: Parchment (default), The Anthology (dark), Substation Tower (industrial). */
+:root{
+  --bg:#F5F2EB; --ink:#1A1A1A; --line:#8C857B; --paper:#E6E0D4; --card:#FAF8F2; --muted:#6b655c; --on-ink:#F5F2EB;
+  --accent:#1A1A1A; --good:#1A1A1A; --bad:#8b2b2b;
+  --fab:#7A2E2E; --fab-ink:#F5F2EB; --st-wish:#8C857B; --st-bought:#9A6A1F; --st-read:#2F5D62; --st-fin:#4F6B3A;
+  --grain-op:.5; --shadow:rgba(26,26,26,.12);
+  --type:'Courier Prime','Special Elite','Courier New',monospace;
+  --serif:'Playfair Display','Cormorant Garamond',Georgia,serif;
+  --body:'Cormorant Garamond',Georgia,serif;
+  --fs:18px;
+  --hazard:repeating-linear-gradient(-45deg,#FFB800 0 10px,#121417 10px 20px);
+  --rivet:radial-gradient(circle,#b5bfcd 0 1.2px,#677282 1.8px,#2b313a 3.6px,transparent 4px);
+  --rivets:var(--rivet) left 5px top 5px/8px 8px no-repeat,var(--rivet) right 5px top 5px/8px 8px no-repeat,var(--rivet) left 5px bottom 5px/8px 8px no-repeat,var(--rivet) right 5px bottom 5px/8px 8px no-repeat;
+  --rivets-card:var(--rivet) left 8px top 15px/10px 10px no-repeat,var(--rivet) right 8px top 15px/10px 10px no-repeat,var(--rivet) left 8px bottom 8px/10px 10px no-repeat,var(--rivet) right 8px bottom 8px/10px 10px no-repeat;
+  color-scheme:light;
+}
+:root[data-mode="anthology"]{
+  --bg:#181818; --ink:#EDEDED; --line:#8a8a8a; --paper:#262626; --card:#1F1F1F; --muted:#a9a9a9; --on-ink:#181818;
+  --accent:#EDEDED; --good:#EDEDED; --bad:#d96a6a;
+  --fab:#C9A24B; --fab-ink:#181818; --st-wish:#9a9a9a; --st-bought:#E0A94A; --st-read:#6FB7BD; --st-fin:#8DBB72;
+  --grain-op:.18; --shadow:rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+:root[data-mode="substation"]{
+  --bg:#121417; --ink:#E2E8F0; --line:#3d4655; --paper:#171A1F; --card:#1E2229; --muted:#8f9bad; --on-ink:#121417;
+  --accent:#FFB800; --good:#00E676; --bad:#FF3B30;
+  --fab:#FFB800; --fab-ink:#121417; --st-wish:#8f9bad; --st-bought:#FFB800; --st-read:#00E676; --st-fin:#00E676;
+  --shadow:rgba(0,0,0,.55);
+  --type:'JetBrains Mono','Share Tech Mono','Courier New',monospace;
+  --serif:'Chakra Petch','Orbitron',Arial,sans-serif;
+  --body:'Chakra Petch','Orbitron',Arial,sans-serif;
+  --fs:16px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--body); font-size:var(--fs); line-height:1.4;
+  min-height:100vh; transition:background .3s,color .3s; position:relative;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:var(--grain-op); mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .3  0 0 0 0 .22  0 0 0 .28 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+:root[data-mode="anthology"] body::before{mix-blend-mode:screen}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding-block:24px 100px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+.only-sub{display:none!important}
+:root[data-mode="substation"] .only-sub{display:revert!important}
+:root[data-mode="substation"] .not-sub{display:none!important}
+
+/* Header */
+header{border-top:4px double var(--ink);border-bottom:1px solid var(--line);padding:18px 0 14px;margin-bottom:22px}
+.mast{display:flex;flex-wrap:wrap;gap:14px 20px;justify-content:space-between;align-items:flex-end}
+.mast>div{min-width:0}
+.file-no{font-family:var(--type);font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(1.9rem,5vw,3.1rem);line-height:1.05;letter-spacing:-.01em;text-wrap:balance}
+h1 em{font-weight:500}
+.tools{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:flex-end;min-width:0}
+.tools .row-a,.modes{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.modes{padding-left:16px;border-left:1px solid var(--line)}
+@media(max-width:860px){.tools{justify-content:flex-start}.modes{padding-left:0;border-left:0}}
+[hidden]{display:none!important}
+.menu{position:relative}
+.menu-pop{position:absolute;top:calc(100% + 8px);left:0;z-index:60;min-width:250px;max-width:calc(100vw - 32px);background:var(--card);color:var(--ink);border:1px solid var(--ink);box-shadow:4px 4px 0 var(--shadow),0 10px 24px var(--shadow);padding:5px;display:grid;gap:2px}
+.mi{display:grid;gap:1px;width:100%;text-align:left;padding:9px 12px;background:transparent;border:0;color:inherit;cursor:pointer;font-family:var(--type)}
+.mi b{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+.mi small{font-size:.7rem;color:var(--muted);letter-spacing:.02em}
+.mi:hover,.mi:focus-visible{background:var(--ink);color:var(--on-ink);outline:0}
+.mi:hover small,.mi:focus-visible small{color:inherit;opacity:.8}
+.mi.danger{margin-top:4px;border-top:1px solid var(--line)}
+.mi.danger b{color:var(--bad)}
+.mi.danger:hover{background:var(--bad)}
+.mi.danger:hover b{color:#fff}
+:root[data-mode="substation"] .menu-pop{background:#1E2229;border:1px solid #556071;border-top:3px solid #FFB800;border-radius:3px;box-shadow:0 12px 28px rgba(0,0,0,.65)}
+:root[data-mode="substation"] .mi:hover,:root[data-mode="substation"] .mi:focus-visible{background:#FFB800;color:#121417}
+:root[data-mode="substation"] .mi.danger:hover{background:#FF3B30}
+.btn{
+  font-family:var(--type);font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--ink);padding:8px 13px;cursor:pointer;transition:.15s;
+}
+.btn:hover{background:var(--ink);color:var(--on-ink)}
+.btn.solid{background:var(--ink);color:var(--on-ink)}
+.btn.solid:hover{background:transparent;color:var(--ink)}
+.btn.small{padding:5px 9px;font-size:.72rem}
+.btn.danger:hover{background:#8b2b2b;border-color:#8b2b2b;color:#fff}
+.btn:focus-visible,.chip:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);background:var(--card);margin-bottom:16px}
+.stat{padding:14px 14px 12px;border-right:1px solid var(--line);position:relative;min-width:0}
+.stat:last-child{border-right:0}
+.stat .lbl{font-family:var(--type);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.stat .num{font-family:var(--serif);font-size:2.4rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+
+/* Goal */
+.goal{border:1px solid var(--line);background:var(--card);padding:16px;margin-bottom:26px;display:grid;grid-template-columns:1fr auto;gap:12px 24px;align-items:center}
+.goal h2{font-family:var(--type);font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.goal .line{font-family:var(--serif);font-size:1.15rem}
+.goal-edit{display:flex;align-items:center;gap:8px;font-family:var(--type);font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;flex-wrap:wrap}
+.goal-edit input{width:72px}
+.bar{height:12px;border:1px solid var(--ink);background:var(--paper);position:relative;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--ink);width:0;transition:width .5s;
+  background-image:repeating-linear-gradient(45deg,transparent 0 4px,rgba(255,255,255,.18) 4px 5px)}
+.bar.thin{height:8px}
+.goal .bar,.goal .meter{grid-column:1/-1}
+.meter{display:none;gap:2px;height:18px}
+.meter.big{height:28px;gap:3px}
+.meter i{flex:1;border-radius:1px;transition:background .3s,box-shadow .3s}
+.meter i.g{background:#0f3a26}.meter i.y{background:#3f3006}.meter i.r{background:#431612}
+.meter i.on.g{background:#00E676;box-shadow:0 0 6px rgba(0,230,118,.7)}
+.meter i.on.y{background:#FFB800;box-shadow:0 0 6px rgba(255,184,0,.7)}
+.meter i.on.r{background:#FF3B30;box-shadow:0 0 6px rgba(255,59,48,.7)}
+
+input[type=text],input[type=number],input[type=search],select,textarea{
+  background:var(--bg);border:1px solid var(--line);padding:8px 10px;width:100%;border-radius:0;font-family:var(--body);font-size:1.02rem}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px}
+textarea{resize:vertical;min-height:84px}
+
+/* Controls */
+.controls{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;margin-bottom:22px;display:grid;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row .grow{flex:1 1 240px}
+.row select{width:auto;min-width:150px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--type);font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);background:transparent;padding:6px 11px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.count{font-family:var(--type);font-size:.78rem;color:var(--muted);letter-spacing:.06em}
+
+/* Cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(310px,100%),1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--line);padding:18px 18px 14px;position:relative;box-shadow:3px 3px 0 var(--shadow);display:flex;flex-direction:column;gap:10px;min-width:0}
+.card::before{content:"";position:absolute;inset:5px;border:1px solid var(--paper);pointer-events:none}
+.card>*{position:relative;min-width:0}
+.card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.ref{font-family:var(--type);font-size:.68rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.title{font-family:var(--serif);font-size:1.35rem;font-weight:700;line-height:1.15;margin-top:3px;overflow-wrap:anywhere}
+.author{font-family:var(--body);font-style:italic;font-size:1.08rem;color:var(--muted)}
+.stamp{
+  font-family:var(--type);font-weight:700;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  border:2px solid var(--ink);padding:3px 7px;transform:rotate(3deg);white-space:nowrap;outline:1px solid var(--ink);outline-offset:2px;opacity:.9
+}
+.stamp.s-reading{background:var(--ink);color:var(--on-ink)}
+.stamp.s-finished{transform:rotate(-4deg);border-style:double;border-width:4px;padding:2px 6px}
+.stamp.s-wishlist{border-style:dashed}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-family:var(--type);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);padding:2px 7px;background:var(--paper);color:var(--ink)}
+.prog-head{display:flex;justify-content:space-between;gap:8px;font-family:var(--type);font-size:.78rem;letter-spacing:.04em;margin-bottom:4px}
+.facts{display:grid;grid-template-columns:1fr 1fr;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line)}
+.fact{padding:7px 0;font-family:var(--type);font-size:.78rem}
+.fact:nth-child(even){padding-left:12px;border-left:1px dashed var(--line)}
+.fact b{display:block;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.notes{font-style:italic;font-size:1.06rem;border-left:3px solid var(--line);padding:2px 0 2px 10px;max-height:5.6em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;white-space:pre-wrap;overflow-wrap:anywhere}
+.notes.empty{color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:4px}
+.quick{border:1px solid var(--ink);background:var(--paper);padding:12px;display:grid;gap:10px}
+.quick label,.form label{font-family:var(--type);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:3px;color:var(--muted)}
+.pagerow{display:flex;gap:6px;align-items:center}
+.pagerow input{text-align:center;min-width:0}
+.empty-state{grid-column:1/-1;text-align:center;border:1px dashed var(--line);padding:50px 20px;font-family:var(--serif);font-size:1.3rem;color:var(--muted)}
+
+/* Dialogs */
+dialog{margin:auto;border:2px solid var(--ink);background:var(--bg);color:var(--ink);width:min(680px,94vw);max-height:92vh;overflow:auto;padding:0}
+dialog::backdrop{background:rgba(10,10,10,.6)}
+.dhead{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:4px double var(--ink);padding:14px 18px;position:sticky;top:0;background:var(--bg);z-index:2}
+.dhead h3{font-family:var(--serif);font-size:1.5rem}
+.form{padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form>div{min-width:0}
+.form .full{grid-column:1/-1}
+.rating-row{display:flex;gap:12px;align-items:center}
+.rating-row input[type=range]{flex:1;accent-color:var(--ink);padding:0;min-width:0}
+.rating-row input[type=number]{width:84px}
+.fact-actions{grid-column:1/-1;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--line);padding-top:14px}
+#askDlg{width:min(440px,92vw)}
+.ask-body{padding:18px;display:grid;gap:18px}
+.ask-body p{font-family:var(--serif);font-size:1.15rem;overflow-wrap:anywhere}
+.ask-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);background:var(--ink);color:var(--on-ink);font-family:var(--type);font-size:.82rem;padding:10px 16px;opacity:0;transition:.3s;z-index:50;pointer-events:none;letter-spacing:.05em;max-width:92vw;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+footer{margin-top:40px;text-align:center;font-family:var(--type);font-size:.72rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;border-top:1px solid var(--line);padding-top:14px}
+
+/* ================= SUBSTATION TOWER ================= */
+:root[data-mode="substation"] body::before{
+  mix-blend-mode:normal;opacity:1;
+  background-image:linear-gradient(rgba(226,232,240,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(226,232,240,.045) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+:root[data-mode="substation"] header{border-top:0;border-bottom:0;padding:0 0 4px}
+:root[data-mode="substation"] header::before{content:"";display:block;height:12px;background:var(--hazard);border:1px solid #000;margin-bottom:16px}
+:root[data-mode="substation"] header::after{content:"";display:block;height:2px;background:var(--line);margin-top:18px}
+.plate{width:fit-content;max-width:100%;background:#FFB800;color:#121417;font-family:var(--type);font-weight:700;font-size:.66rem;letter-spacing:.14em;padding:3px 10px;margin-bottom:10px;border:1px solid #000}
+.plate::before{content:"";display:inline-block;width:11px;height:10px;background:#121417;clip-path:polygon(50% 0,100% 100%,0 100%);margin-right:8px;vertical-align:-1px}
+:root[data-mode="substation"] .file-no{color:var(--good)}
+:root[data-mode="substation"] .file-no::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 8px var(--good);margin-right:8px}
+:root[data-mode="substation"] h1{font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:clamp(1.6rem,4.6vw,2.7rem)}
+:root[data-mode="substation"] h1 em{color:var(--accent);font-weight:700}
+
+:root[data-mode="substation"] .btn{
+  font-family:var(--type);font-weight:700;font-size:.72rem;letter-spacing:.1em;color:var(--ink);
+  background:linear-gradient(#3b4350,#262c35);border:1px solid #556071;border-bottom:4px solid #0c0e11;border-radius:3px;
+  padding:8px 13px 6px;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 2px 4px rgba(0,0,0,.5);transition:transform .08s,filter .15s
+}
+:root[data-mode="substation"] .btn.small{padding:5px 9px 3px}
+:root[data-mode="substation"] .btn:hover{background:linear-gradient(#475163,#2d3440);color:var(--ink)}
+:root[data-mode="substation"] .btn:active{transform:translateY(2px);border-bottom-width:2px}
+:root[data-mode="substation"] .btn.solid,:root[data-mode="substation"] .btn.solid:hover{background:linear-gradient(#FFCB3D,#FFB800);color:#121417;border-color:#ffd25e;border-bottom-color:#7a5800}
+:root[data-mode="substation"] .btn.solid:hover{filter:brightness(1.08)}
+:root[data-mode="substation"] .btn.danger:hover{background:linear-gradient(#ff5a50,#d92d22);border-color:#ff8a82;border-bottom-color:#6b120c;color:#fff}
+:root[data-mode="substation"] .btn.danger.solid,:root[data-mode="substation"] .btn.danger.solid:hover{background:linear-gradient(#ff5a50,#FF3B30);color:#fff;border-color:#ff8a82;border-bottom-color:#6b120c}
+:root[data-mode="substation"] .btn:focus-visible,:root[data-mode="substation"] .chip:focus-visible,:root[data-mode="substation"] input:focus-visible,:root[data-mode="substation"] select:focus-visible,:root[data-mode="substation"] textarea:focus-visible{outline:2px solid #FFB800;outline-offset:2px}
+
+:root[data-mode="substation"] .chip{
+  font-weight:700;color:var(--muted);background:linear-gradient(#2a303a,#1d2128);border:1px solid #4a5465;border-bottom:3px solid #0c0e11;border-radius:3px;
+  padding:6px 11px 4px 26px;position:relative;font-size:.7rem
+}
+:root[data-mode="substation"] .chip::before{content:"";position:absolute;left:10px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:#0f3a26;box-shadow:inset 0 0 0 1px rgba(0,0,0,.6)}
+:root[data-mode="substation"] .chip[aria-pressed="true"]{color:var(--ink);background:linear-gradient(#171a1f,#20252d);border-color:#4a5465;border-bottom-width:1px;transform:translateY(2px)}
+:root[data-mode="substation"] .chip[aria-pressed="true"]::before{background:#00E676;box-shadow:0 0 8px #00E676}
+
+:root[data-mode="substation"] .stats{gap:10px;border:0;background:transparent}
+:root[data-mode="substation"] .stat{border:1px solid var(--line)!important;background:linear-gradient(150deg,#232830,#1A1E24);padding:16px 16px 12px;border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 3px 0 rgba(0,0,0,.4)}
+:root[data-mode="substation"] .stat::before{content:"";position:absolute;inset:0;pointer-events:none;background:var(--rivets)}
+:root[data-mode="substation"] .stat::after{content:"";position:absolute;right:20px;top:19px;width:9px;height:9px;border-radius:50%;background:var(--led,#4a5465);box-shadow:0 0 8px var(--led,transparent)}
+:root[data-mode="substation"] .stat:nth-child(1){--led:#E2E8F0}
+:root[data-mode="substation"] .stat:nth-child(2){--led:#FFB800}
+:root[data-mode="substation"] .stat:nth-child(3){--led:#4a5465}
+:root[data-mode="substation"] .stat:nth-child(4),:root[data-mode="substation"] .stat:nth-child(5){--led:#00E676}
+:root[data-mode="substation"] .stat .num{font-family:var(--type);font-weight:700;color:var(--accent);text-shadow:0 0 12px rgba(255,184,0,.35);font-size:2.1rem}
+
+:root[data-mode="substation"] .goal{background:linear-gradient(150deg,#232830,#1A1E24);padding:28px 20px 18px;border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 3px 0 rgba(0,0,0,.4)}
+:root[data-mode="substation"] .goal::before{content:"";position:absolute;top:0;left:0;right:0;height:9px;background:var(--hazard);border-bottom:1px solid #000}
+:root[data-mode="substation"] .goal::after{content:"";position:absolute;inset:0;pointer-events:none;background:var(--rivet) left 5px top 14px/8px 8px no-repeat,var(--rivet) right 5px top 14px/8px 8px no-repeat,var(--rivet) left 5px bottom 5px/8px 8px no-repeat,var(--rivet) right 5px bottom 5px/8px 8px no-repeat}
+:root[data-mode="substation"] .goal{position:relative}
+:root[data-mode="substation"] .goal h2{color:var(--accent)}
+:root[data-mode="substation"] .goal .line{font-family:var(--type);font-size:.95rem}
+:root[data-mode="substation"] .bar{display:none}
+:root[data-mode="substation"] .meter{display:flex;padding:3px;background:#0b0d10;border:1px solid #000;box-shadow:inset 0 1px 3px rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.06)}
+
+:root[data-mode="substation"] input[type=text],:root[data-mode="substation"] input[type=number],:root[data-mode="substation"] input[type=search],:root[data-mode="substation"] select,:root[data-mode="substation"] textarea{
+  background:#0f1216;border:1px solid #3d4655;border-radius:2px;color:var(--ink);font-family:var(--type);font-size:.86rem;caret-color:#FFB800}
+:root[data-mode="substation"] .rating-row input[type=range]{accent-color:#FFB800}
+:root[data-mode="substation"] .controls{border-color:var(--line)}
+
+:root[data-mode="substation"] .card{background:linear-gradient(150deg,#262b34,#1B1F25);border:1px solid #4a5465;border-radius:4px;padding:28px 24px 16px;box-shadow:0 6px 14px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.07)}
+:root[data-mode="substation"] .card::before{inset:0;border:0;background:var(--rivets-card)}
+:root[data-mode="substation"] .card::after{content:"";position:absolute;top:0;left:0;right:0;height:9px;background:repeating-linear-gradient(-45deg,var(--stripe,#FFB800) 0 8px,#121417 8px 16px);border-bottom:1px solid #000;border-radius:3px 3px 0 0}
+.c-reading{--stripe:#FFB800}.c-finished{--stripe:#00E676}.c-bought{--stripe:#8f9bad}.c-wishlist{--stripe:#4a5465}
+:root[data-mode="substation"] .title{font-weight:600;font-size:1.2rem;letter-spacing:.01em}
+:root[data-mode="substation"] .author{font-family:var(--type);font-style:normal;font-size:.74rem;text-transform:uppercase;letter-spacing:.06em}
+:root[data-mode="substation"] .ref{color:var(--good)}
+:root[data-mode="substation"] .stamp{transform:none;outline:0;border:1px solid currentColor;border-radius:2px;padding:3px 8px 3px 20px;position:relative;color:var(--muted);background:#12151a;font-size:.62rem;letter-spacing:.1em;opacity:1}
+:root[data-mode="substation"] .stamp::before{content:"";position:absolute;left:7px;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor}
+:root[data-mode="substation"] .stamp.s-reading{color:#00E676;background:#0e1a14}
+:root[data-mode="substation"] .stamp.s-finished{color:#00E676;border:1px solid #00E676;padding:3px 8px 3px 20px}
+:root[data-mode="substation"] .stamp.s-bought{color:#FFB800}
+:root[data-mode="substation"] .stamp.s-wishlist{border-style:dashed}
+:root[data-mode="substation"] .tag{background:#12151a;border-color:#3d4655;color:var(--muted);border-radius:2px}
+:root[data-mode="substation"] .prog-head{font-size:.68rem;letter-spacing:.1em;color:var(--muted)}
+:root[data-mode="substation"] .facts,:root[data-mode="substation"] .fact:nth-child(even){border-color:#3d4655}
+:root[data-mode="substation"] .notes{font-family:var(--type);font-style:normal;font-size:.78rem;border-left:2px solid #00E676;background:#0f1216;padding:8px 10px}
+:root[data-mode="substation"] .notes.empty{border-left-color:#3d4655}
+:root[data-mode="substation"] .quick{background:#12151a;border:1px solid #556071;border-left:4px solid #FFB800;border-radius:2px}
+:root[data-mode="substation"] .empty-state{border-color:var(--line);font-family:var(--type);font-size:1rem}
+
+:root[data-mode="substation"] dialog{background:#1A1E24;border:2px solid #556071;border-radius:4px}
+:root[data-mode="substation"] .dhead{background:#1A1E24;border-bottom:0;padding-bottom:24px}
+:root[data-mode="substation"] .dhead::after{content:"";position:absolute;left:0;right:0;bottom:0;height:9px;background:var(--hazard);border-top:1px solid #000}
+:root[data-mode="substation"] .dhead h3{text-transform:uppercase;letter-spacing:.06em;font-size:1.25rem}
+:root[data-mode="substation"] footer{border-top:2px solid var(--line)}
+:root[data-mode="substation"] #toast{background:#12151a;color:#FFB800;border:1px solid #FFB800}
+
+@media(prefers-reduced-motion:no-preference){
+  :root[data-mode="substation"] .stat:nth-child(4)::after,:root[data-mode="substation"] .stamp.s-reading::before{animation:pulse 1.8s ease-in-out infinite}
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Mode buttons */
+.b-mode:empty{display:none}
+.b-mode::before{content:" · "}
+/* Substation Tower, light mode (Daylight Shift) */
+:root[data-mode="substation"][data-tone="light"]{
+  --bg:#DDE2E8; --ink:#14181D; --line:#9AA4B2; --paper:#E3E7ED; --card:#EEF1F5; --muted:#4F5B6B; --on-ink:#EEF1F5;
+  --accent:#8a5d00; --good:#007a3d; --bad:#D62B20; --shadow:rgba(20,24,29,.25);
+  color-scheme:light;
+}
+:root[data-mode="substation"][data-tone="light"] body::before{background-image:linear-gradient(rgba(20,24,29,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(20,24,29,.06) 1px,transparent 1px)}
+:root[data-mode="substation"][data-tone="light"] .btn:not(.solid):not(:hover){background:linear-gradient(#F6F8FB,#D3D9E1);border-color:#9AA4B2;border-bottom-color:#7B8594;color:var(--ink);box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(20,24,29,.25)}
+:root[data-mode="substation"][data-tone="light"] .btn:hover:not(.solid):not(.danger){background:linear-gradient(#FFFFFF,#E2E7EE);color:var(--ink)}
+:root[data-mode="substation"][data-tone="light"] .chip:not([aria-pressed="true"]){background:linear-gradient(#F6F8FB,#D9DEE6);border-color:#9AA4B2;border-bottom-color:#7B8594;color:var(--muted)}
+:root[data-mode="substation"][data-tone="light"] .chip:not([aria-pressed="true"])::before{background:#B7C0CC}
+:root[data-mode="substation"][data-tone="light"] .chip[aria-pressed="true"]{background:linear-gradient(#C9D0DA,#D9DEE6);border-color:#9AA4B2;color:var(--ink)}
+:root[data-mode="substation"][data-tone="light"] .stat,:root[data-mode="substation"][data-tone="light"] .goal{background:linear-gradient(150deg,#F6F8FB,#DCE1E8);box-shadow:inset 0 1px 0 #fff,0 3px 0 rgba(20,24,29,.18)}
+:root[data-mode="substation"][data-tone="light"] .stat .num{text-shadow:none}
+:root[data-mode="substation"][data-tone="light"] .card{background:linear-gradient(150deg,#F6F8FB,#DCE1E8);border-color:#8B95A5;box-shadow:0 6px 14px rgba(20,24,29,.22),inset 0 1px 0 #fff}
+:root[data-mode="substation"][data-tone="light"] input[type=text],:root[data-mode="substation"][data-tone="light"] input[type=number],:root[data-mode="substation"][data-tone="light"] input[type=search],:root[data-mode="substation"][data-tone="light"] select,:root[data-mode="substation"][data-tone="light"] textarea{background-color:#fff;border-color:#9AA4B2}
+:root[data-mode="substation"][data-tone="light"] .tag{background:#E3E7ED;border-color:#9AA4B2}
+:root[data-mode="substation"][data-tone="light"] .stamp.s-wishlist{color:#8f9bad}
+:root[data-mode="substation"][data-tone="light"] .facts,:root[data-mode="substation"][data-tone="light"] .fact:nth-child(even){border-color:#9AA4B2}
+:root[data-mode="substation"][data-tone="light"] .notes{background:#E6EAF0}
+:root[data-mode="substation"][data-tone="light"] .notes.empty{border-left-color:#9AA4B2}
+:root[data-mode="substation"][data-tone="light"] .quick{background:#E3E7ED;border:1px solid #8B95A5;border-left:4px solid #FFB800}
+:root[data-mode="substation"][data-tone="light"] dialog,:root[data-mode="substation"][data-tone="light"] .dhead{background:#E9ECF0}
+:root[data-mode="substation"][data-tone="light"] dialog{border-color:#8B95A5}
+
+/* Tabs, series volumes, dashboard */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
+.vols{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:5px}
+.vol{font-family:var(--type);font-size:.72rem;font-weight:700;padding:6px 0;text-align:center;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;min-width:0}
+.vol.s-wishlist{border-style:dashed;color:var(--muted)}
+.vol.s-bought{background:var(--paper)}
+.vol.s-reading{border:2px solid var(--ink);background:var(--paper);padding:5px 0}
+.vol.s-finished{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.vol.dim{opacity:.3}
+.vol.open{outline:2px solid var(--ink);outline-offset:2px}
+.vol:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-family:var(--type);font-size:.64rem;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;border:1px solid var(--line)}
+.legend .s-wishlist::before{border-style:dashed}
+.legend .s-bought::before{background:var(--paper)}
+.legend .s-reading::before{border:2px solid var(--ink);background:var(--paper)}
+.legend .s-finished::before{background:var(--ink);border-color:var(--ink)}
+.vhead{font-family:var(--type);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.form label.chk{display:flex;gap:8px;align-items:center;font-size:.78rem;letter-spacing:.02em;text-transform:none;color:var(--ink);cursor:pointer;margin:0}
+.chk input{width:auto;accent-color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px}
+.kpi{border:3px double var(--line);background:var(--card);padding:12px 14px;position:relative;min-width:0;box-shadow:3px 3px 0 var(--shadow)}
+.kpi .lbl{font-family:var(--type);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.kpi .num{font-family:var(--serif);font-size:1.7rem;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(330px,100%),1fr));gap:20px}
+.panel h3{font-family:var(--serif);font-size:1.2rem;font-weight:700;line-height:1.2;border-bottom:1px solid var(--line);padding-bottom:6px}
+.exh{display:block;font-family:var(--type);font-size:.62rem;font-weight:400;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.lead{flex:1;min-width:12px;align-self:flex-end;margin-bottom:.35em;border-bottom:1px dotted var(--line)}
+.hlist{display:grid;gap:12px}
+.hrow{display:grid;gap:3px}
+.hl{display:flex;justify-content:space-between;gap:10px;font-family:var(--type);font-size:.74rem;letter-spacing:.03em}
+.hl span:first-child{overflow-wrap:anywhere;min-width:0}
+.hl span:last-child{text-align:right;color:var(--muted)}
+.note{font-family:var(--type);font-size:.78rem;color:var(--muted)}
+.gauge,.mchart{display:block;width:100%;height:auto}
+.gauge{max-width:300px;margin:0 auto}
+.gz{fill:none;stroke-width:12;stroke:var(--line);opacity:.7}
+.gz.y{stroke:var(--ink);stroke-dasharray:2 3;opacity:.8}
+.gz.r{stroke:var(--ink);opacity:.85}
+.gt{stroke:var(--ink);stroke-width:1.5;opacity:.7}
+.gneedle{stroke:var(--ink);stroke-width:3;stroke-linecap:round}
+.ghub{fill:var(--card);stroke:var(--ink);stroke-width:3}
+.gtxt{fill:var(--ink);font-family:var(--serif);font-size:17px;font-weight:700;text-anchor:middle}
+.gsm{fill:var(--muted);font-family:var(--type);font-size:9px;text-anchor:middle}
+.cg{stroke:var(--line);stroke-width:1;opacity:.6;stroke-dasharray:1 3}
+.hp{stroke:var(--ink);stroke-width:1.5}
+.ct{fill:var(--muted);font-family:var(--type);font-size:10px}
+.cv{fill:var(--ink);font-family:var(--type);font-size:9px;text-anchor:middle}
+.mbar{fill:url(#hatch);stroke:var(--ink);stroke-width:1}
+
+/* Substation Tower revamp: status bar, bay labels, LCD readouts, series, dashboard */
+.statusbar{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin-top:16px;padding:7px 12px;background:#0b0d10;border:1px solid #000;box-shadow:inset 0 1px 3px rgba(0,0,0,.8);font-family:var(--type);font-size:.64rem;letter-spacing:.14em;color:#8f9bad}
+.statusbar .sb{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.statusbar .led{width:8px;height:8px;border-radius:50%;background:#00E676;box-shadow:0 0 8px #00E676;display:inline-block}
+.statusbar .clock{margin-left:auto;color:#00E676;text-shadow:0 0 8px rgba(0,230,118,.6);font-weight:700}
+.bay{display:flex;align-items:center;gap:10px;margin:0 0 8px;font-family:var(--type);font-size:.64rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+.bay b{background:#FFB800;color:#121417;padding:1px 7px;font-weight:700}
+.bay::after{content:"";flex:1;height:1px;background:var(--line)}
+.lcd{font-family:var(--type);font-weight:700;font-size:.8rem;letter-spacing:.08em;color:#00E676;background:#0b0d10;border:1px solid #000;padding:1px 7px;text-shadow:0 0 8px rgba(0,230,118,.7);box-shadow:inset 0 1px 3px rgba(0,0,0,.8)}
+:root[data-mode="substation"] .stamp.s-series{color:#FFB800}
+:root[data-mode="substation"] .panel h3{color:var(--accent)}
+:root[data-mode="substation"] .gz.g{stroke:#00E676;opacity:.95}
+:root[data-mode="substation"] .gz.y{stroke:#FFB800;opacity:.95}
+:root[data-mode="substation"] .gz.r{stroke:#FF3B30;opacity:.95}
+:root[data-mode="substation"] .gneedle{stroke:var(--bad)}
+:root[data-mode="substation"] .mbar{fill:var(--good);stroke:none}
+:root[data-mode="substation"] .gz{stroke-dasharray:none}
+:root[data-mode="substation"] .cg{stroke-dasharray:none}
+:root[data-mode="substation"] .ghub{fill:var(--ink);stroke:none}
+:root[data-mode="substation"] .gtxt{font-family:var(--type);font-size:15px}
+:root[data-mode="substation"] .lead{display:none}
+:root[data-mode="substation"] .panel h3{font-family:var(--type);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;border-bottom:0;padding-bottom:0}
+:root[data-mode="substation"] .vol{border-radius:2px;background:#12151a;color:#8f9bad;border:1px solid #3d4655;padding:6px 0}
+:root[data-mode="substation"] .vol.s-wishlist{border-style:dashed;border-color:#4a5465}
+:root[data-mode="substation"] .vol.s-bought{border-color:#FFB800;color:#FFB800}
+:root[data-mode="substation"] .vol.s-reading{border-color:#00E676;color:#00E676;background:#0e1a14;box-shadow:0 0 8px rgba(0,230,118,.45)}
+:root[data-mode="substation"] .vol.s-finished{background:#00E676;color:#121417;border-color:#00E676;box-shadow:0 0 8px rgba(0,230,118,.5)}
+:root[data-mode="substation"] .vol.open{outline:2px solid #FFB800}
+:root[data-mode="substation"] .legend .s-bought::before{border-color:#FFB800;background:#12151a}
+:root[data-mode="substation"] .legend .s-reading::before{border:2px solid #00E676;background:#0e1a14}
+:root[data-mode="substation"] .legend .s-finished::before{background:#00E676;border-color:#00E676}
+:root[data-mode="substation"] .kpi{background:linear-gradient(150deg,#232830,#1A1E24);border:1px solid #4a5465;border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 3px 0 rgba(0,0,0,.4)}
+:root[data-mode="substation"] .kpi::before{content:"";position:absolute;inset:0;pointer-events:none;background:var(--rivets)}
+:root[data-mode="substation"] .kpi .num{font-family:var(--type);color:var(--accent);text-shadow:0 0 12px rgba(255,184,0,.3);font-size:1.45rem}
+:root[data-mode="substation"][data-tone="light"] .kpi{background:linear-gradient(150deg,#F6F8FB,#DCE1E8);border-color:#8B95A5;box-shadow:inset 0 1px 0 #fff,0 3px 0 rgba(20,24,29,.18)}
+:root[data-mode="substation"][data-tone="light"] .kpi .num{text-shadow:none}
+@media(prefers-reduced-motion:no-preference){.statusbar .led{animation:pulse 2.4s ease-in-out infinite}}
+
+
+/* Floating add button, layouts, status colours */
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:50;display:flex;align-items:center;gap:8px;background:var(--fab);color:var(--fab-ink);border:2px solid var(--fab);padding:12px 18px;font-family:var(--type);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:.8rem;cursor:pointer;box-shadow:0 6px 18px var(--shadow),3px 3px 0 var(--shadow);transition:transform .15s}
+.fab:hover{transform:translateY(-2px)}
+.fab:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.fab .plus{font-size:1.4rem;line-height:1}
+@media(max-width:520px){.fab{padding:13px 16px;border-radius:999px}.fab .lbl{display:none}}
+:root[data-mode="substation"] .fab{background:linear-gradient(#ffd24d,#FFB800);color:#121417;border:1px solid #ffe08a;border-bottom:3px solid #8a6400;border-radius:4px;box-shadow:0 0 0 2px #121417,0 8px 20px rgba(0,0,0,.65),0 0 18px rgba(255,184,0,.35)}
+.seg{display:inline-flex;border:1px solid var(--line);flex:none}
+.seg button{background:transparent;border:0;padding:7px 11px;font-family:var(--type);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--on-ink)}
+.seg button:focus-visible{outline:2px dashed var(--ink);outline-offset:-3px}
+:root[data-mode="substation"] .seg{border-color:#3d4655;border-radius:3px;overflow:hidden}
+:root[data-mode="substation"] .seg button{color:#8f9bad}
+:root[data-mode="substation"] .seg button+button{border-left-color:#3d4655}
+:root[data-mode="substation"] .seg button[aria-pressed="true"]{background:#FFB800;color:#121417}
+.chip .n{opacity:.7;margin-left:5px;font-variant-numeric:tabular-nums}
+.cover.ph{display:none;align-items:center;justify-content:center;font-family:var(--serif);font-size:1.6rem;font-weight:700;color:var(--muted)}
+/* List layout */
+#list.lay-list{grid-template-columns:1fr;gap:8px}
+.lay-list .card:not(.series){display:grid;grid-template-columns:minmax(0,2fr) minmax(130px,1fr) auto;align-items:center;gap:8px 18px;padding:10px 14px}
+.lay-list .card:not(.series)::before{display:none}
+.lay-list .card:not(.series) :is(.tags,.facts,.notes,.ref){display:none}
+.lay-list .card:not(.series) .cover,.lay-list .card:not(.series) .cover.ph{width:38px;height:54px;font-size:1.1rem}
+.lay-list .card:not(.series) .cover.ph{display:flex;border:1px solid var(--line);background:var(--paper)}
+.lay-list .card:not(.series) .card-top{align-items:center;gap:12px}
+.lay-list .card:not(.series) .card-top>div:not(.cover){flex:1}
+.lay-list .card:not(.series) .title{font-size:1.05rem;margin-top:0}
+.lay-list .card:not(.series) .author{font-size:.95rem}
+.lay-list .card:not(.series) .quick{grid-column:1/-1}
+.lay-list .card:not(.series) .actions{justify-content:flex-end;flex-wrap:wrap}
+@media(max-width:760px){.lay-list .card:not(.series){grid-template-columns:1fr}.lay-list .card:not(.series) .actions{justify-content:flex-start}}
+/* Covers layout: compact poster wall, tap to expand */
+#list.lay-covers{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px}
+.lay-covers .card{grid-column:1/-1}
+.poster{--st:var(--st-wish);position:relative;display:block;width:100%;max-width:132px;aspect-ratio:2/3;padding:0;border:1px solid var(--line);background:var(--paper);cursor:pointer;overflow:hidden;box-shadow:2px 2px 0 var(--shadow);transition:transform .15s,box-shadow .15s;color:var(--ink);font:inherit}
+.poster.c-bought{--st:var(--st-bought)}.poster.c-reading{--st:var(--st-read)}.poster.c-finished{--st:var(--st-fin)}
+.poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.poster .pl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:2.4rem;font-weight:700;color:var(--muted)}
+.poster::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:var(--st)}
+.poster .cap{position:absolute;left:0;right:0;bottom:5px;padding:22px 7px 6px;background:linear-gradient(transparent,rgba(0,0,0,.82));color:#fff;font-family:var(--type);font-size:.64rem;line-height:1.25;text-align:left;opacity:0;transform:translateY(6px);transition:opacity .15s,transform .15s}
+.poster .cap b{display:block;font-size:.7rem;letter-spacing:.02em;overflow-wrap:anywhere}
+.poster .cap span{opacity:.8}
+.poster .nvol{position:absolute;top:5px;right:5px;background:var(--ink);color:var(--on-ink);font-family:var(--type);font-size:.6rem;font-weight:700;letter-spacing:.06em;padding:2px 5px}
+.poster:hover,.poster:focus-visible{transform:translateY(-3px);box-shadow:3px 6px 0 var(--shadow),0 8px 18px var(--shadow);z-index:2;outline:0}
+.poster:hover .cap,.poster:focus-visible .cap{opacity:1;transform:none}
+.poster:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.poster.is-hidden{opacity:.45;filter:grayscale(.7)}
+.collapse-row{display:flex;justify-content:flex-end;margin:-4px 0 -6px}
+.collapse-btn{font-family:var(--type);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;background:var(--card);color:var(--ink);border:1px solid var(--ink);padding:4px 9px;cursor:pointer}
+.collapse-btn:hover,.collapse-btn:focus-visible{background:var(--ink);color:var(--on-ink);outline:0}
+.lay-covers .card.expanded{animation:popIn .18s ease-out}
+@keyframes popIn{from{opacity:.4;transform:scale(.985)}to{opacity:1;transform:none}}
+:root[data-mode="substation"] .poster{border-radius:2px;border-color:#3d4655;background:#171A1F;box-shadow:0 2px 6px rgba(0,0,0,.55)}
+:root[data-mode="substation"] .poster:hover,:root[data-mode="substation"] .poster:focus-visible{border-color:#FFB800;box-shadow:0 0 0 1px #FFB800,0 0 16px rgba(255,184,0,.35)}
+:root[data-mode="substation"] .poster::after{box-shadow:0 0 8px var(--st)}
+:root[data-mode="substation"] .poster .nvol{background:#FFB800;color:#121417;border-radius:2px}
+:root[data-mode="substation"] .collapse-btn{background:#1E2229;color:#E2E8F0;border-color:#556071;border-radius:2px}
+:root[data-mode="substation"] .collapse-btn:hover{background:#FFB800;color:#121417;border-color:#FFB800}
+@media(prefers-reduced-motion:reduce){.poster,.poster .cap,.lay-covers .card.expanded{transition:none;animation:none}}
+/* Status colours (parchment + anthology) */
+:root:not([data-mode="substation"]) .card.c-wishlist{--st:var(--st-wish)}
+:root:not([data-mode="substation"]) .card.c-bought{--st:var(--st-bought)}
+:root:not([data-mode="substation"]) .card.c-reading{--st:var(--st-read)}
+:root:not([data-mode="substation"]) .card.c-finished{--st:var(--st-fin)}
+:root:not([data-mode="substation"]) .card{border-top:3px solid var(--st,var(--line))}
+:root:not([data-mode="substation"]) .card .stamp{border-color:var(--st,var(--ink));outline-color:var(--st,var(--ink));color:var(--st,var(--ink))}
+:root:not([data-mode="substation"]) .card .stamp.s-wishlist{color:var(--muted)}
+:root:not([data-mode="substation"]) .card .stamp.s-reading{background:var(--st-read);color:var(--on-ink)}
+:root:not([data-mode="substation"]) .card .bar>i{background-color:var(--st,var(--ink))}
+:root:not([data-mode="substation"]) .vol.s-bought{border-color:var(--st-bought);color:var(--st-bought);background:var(--paper)}
+:root:not([data-mode="substation"]) .vol.s-reading{border-color:var(--st-read);color:var(--st-read)}
+:root:not([data-mode="substation"]) .vol.s-finished{background:var(--st-fin);border-color:var(--st-fin);color:var(--on-ink)}
+:root:not([data-mode="substation"]) .stat:nth-child(2) .num{color:var(--st-bought)}
+:root:not([data-mode="substation"]) .stat:nth-child(3) .num{color:var(--st-wish)}
+:root:not([data-mode="substation"]) .stat:nth-child(4) .num{color:var(--st-read)}
+:root:not([data-mode="substation"]) .stat:nth-child(5) .num{color:var(--st-fin)}
+.card-top>.cover{flex:none}
+.gchips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.gchips .chip{padding:3px 8px;font-size:.68rem}
+.gchips:empty{display:none}
+/* Hidden entries */
+.card.is-hidden{opacity:.55;filter:grayscale(.6);border-style:dashed}
+/* Covers and years */
+.cover{width:64px;height:92px;object-fit:cover;border:1px solid var(--line);background:var(--paper);flex:none;box-shadow:2px 2px 0 var(--shadow)}
+.card-top>div{flex:1;min-width:0}
+.cover-field{display:flex;gap:14px;align-items:flex-start}
+.cover-prev{width:64px;height:92px;border:1px dashed var(--line);background:var(--paper) center/cover no-repeat;flex:none}
+.cover-ctl{display:grid;gap:8px;min-width:0;justify-items:start}
+.cover-ctl input[type=file]{max-width:100%;font-size:.8rem}
+.fact.wide{grid-column:1/-1;border-left:0!important;padding-left:0!important;border-top:1px dashed var(--line)}
+:root[data-mode="substation"] .cover{border-radius:2px;border-color:#556071;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+
+/* Guide */
+.guide{padding:18px;display:grid;gap:14px}
+.guide section{border-top:1px dashed var(--line);padding-top:12px;min-width:0}
+.guide section:first-child{border-top:0;padding-top:0}
+.guide h4{font-family:var(--type);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+.guide p{font-size:1.05rem;overflow-wrap:anywhere}
+.guide b{font-family:var(--type);font-size:.82em;font-weight:700}
+:root[data-mode="substation"] .guide h4{color:var(--accent)}
+:root[data-mode="substation"] .guide p{font-size:.9rem}
+:root[data-mode="substation"] .guide section{border-color:var(--line)}
+
+/* Responsive */
+@media(max-width:860px){
+  .tools{align-items:flex-start}
+  .tools .row-a,.modes{justify-content:flex-start}
+}
+@media(max-width:560px){
+  :root{--fs:17px}
+  :root[data-mode="substation"]{--fs:15px}
+  .goal{grid-template-columns:1fr}
+  .form{grid-template-columns:1fr}
+  .row select{flex:1 1 140px}
+}
+
+/* Compact top area: Bay 01 to 03 */
+.topband{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:14px;margin-bottom:16px}
+.tb-col{min-width:0;display:flex;flex-direction:column}
+.tb-col .bay{margin-bottom:6px}
+.stats{margin:0;flex:1;grid-template-columns:repeat(5,minmax(0,1fr))}
+.stat{appearance:none;display:block;background:transparent;border:0;border-right:1px solid var(--line);padding:9px 11px 8px;text-align:left;font:inherit;color:inherit;cursor:pointer;transition:background .15s,box-shadow .15s}
+.stat:last-child{border-right:0}
+.stat .lbl{display:block;font-size:.6rem;letter-spacing:.12em}
+.stat .num{display:block;font-size:1.7rem;line-height:1.15}
+.stat:hover{background:var(--paper)}
+.stat:focus-visible{outline:2px dashed var(--ink);outline-offset:-4px}
+:root:not([data-mode="substation"]) .stat[aria-pressed="true"]{background:var(--ink);color:var(--on-ink)}
+:root:not([data-mode="substation"]) .stat[aria-pressed="true"] .num{color:inherit}
+:root:not([data-mode="substation"]) .stat[aria-pressed="true"] .lbl{color:inherit;opacity:.8}
+.goal{padding:10px 14px 11px;margin:0;gap:6px 14px;flex:1;align-content:center}
+.goal h2{font-size:.66rem;margin-bottom:2px}
+.goal .line{font-size:1rem;line-height:1.25}
+.goal-edit{font-size:.62rem;gap:5px;flex-wrap:nowrap}
+.goal-edit input{width:52px;padding:4px 6px;font-size:.9rem;text-align:center}
+.goal-edit #currInput{width:54px}
+.gstep{width:24px;height:26px;border:1px solid var(--line);background:transparent;cursor:pointer;font-family:var(--type);font-weight:700;line-height:1;color:inherit;flex:none}
+.gstep:hover,.gstep:focus-visible{background:var(--ink);color:var(--on-ink);outline:0}
+.goal .bar{height:8px}
+.goal .meter.big{height:14px;gap:2px}
+.controls{padding:9px 0;margin-bottom:16px;gap:8px}
+.controls .row{gap:8px}
+.controls select,.controls input[type=search]{padding:6px 10px;font-size:.92rem}
+.controls .seg button{padding:6px 9px}
+.chips[hidden]{display:none}
+:root[data-mode="substation"] .stat{padding:9px 11px 7px;border-radius:3px}
+:root[data-mode="substation"] .stat::after{right:10px;top:11px;width:7px;height:7px}
+:root[data-mode="substation"] .stat .num{font-size:1.6rem}
+:root[data-mode="substation"] .stat:hover{background:linear-gradient(150deg,#2a3039,#1f242b)}
+:root[data-mode="substation"] .stat[aria-pressed="true"]{border-color:#FFB800!important;box-shadow:0 0 0 1px #FFB800,0 0 14px rgba(255,184,0,.3),inset 0 1px 0 rgba(255,255,255,.06)}
+:root[data-mode="substation"] .goal{padding:18px 14px 10px}
+:root[data-mode="substation"] .goal::before{height:6px}
+:root[data-mode="substation"] .gstep{border-color:#556071;border-radius:2px;background:#171A1F;color:#E2E8F0}
+:root[data-mode="substation"] .gstep:hover{background:#FFB800;color:#121417}
+:root[data-mode="substation"][data-tone="light"] .stat:hover{background:linear-gradient(150deg,#fff,#e8ecf2)}
+:root[data-mode="substation"][data-tone="light"] .gstep{background:#F6F8FB;color:#1A1E24}
+/* Title groups: other formats sit under the volumes */
+.formats{margin:12px 0 4px;border-top:1px dashed var(--line);padding-top:8px}
+.fmt-title{font-family:var(--type);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;opacity:.75;margin-bottom:6px}
+.fmt-block{padding:10px 0 11px;border-top:1px dashed var(--line)}
+.fmt-block:first-of-type{border-top:0;padding-top:2px}
+.fmt-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+.fmt-head b{font-family:var(--type);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase}
+.fmt-head span{font-size:.8rem;opacity:.75}
+.fmt-block .actions{margin-top:8px}
+.fmt-block .quick{margin-top:8px}
+@media(max-width:860px){.topband{grid-template-columns:1fr;gap:10px}.goal-edit{flex-wrap:wrap}}
+@media(max-width:560px){.stat{padding:8px 7px 7px}.stat .lbl{font-size:.52rem;letter-spacing:.06em}.stat .num{font-size:1.35rem}:root[data-mode="substation"] .stat::after{right:5px;top:5px;width:5px;height:5px}:root[data-mode="substation"] .stat{padding:14px 6px 7px}:root[data-mode="substation"] .stat::before{display:none}.controls .row select{flex:1 1 120px}}
+/* Sidebar layout: Bay 01 and 02 on the left of the library */
+@media(min-width:1000px){
+  .wrap{max-width:1360px}
+  .libgrid{display:grid;grid-template-columns:272px minmax(0,1fr);gap:26px;align-items:start}
+  .libgrid>.topband{display:flex;flex-direction:column;gap:14px;margin:0;position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;scrollbar-width:thin}
+  .libgrid .stats{grid-template-columns:1fr 1fr;flex:none}
+  .libgrid .stat{padding:11px 13px 10px}
+  .libgrid .stat .num{font-size:1.9rem}
+  .libgrid .stat:first-child{grid-column:1/-1}
+  .libgrid .goal{grid-template-columns:1fr;flex:none;padding:12px 14px 13px}
+  .libgrid .goal-edit{flex-wrap:wrap;margin-top:4px}
+  .libgrid .goal .line{font-size:1.05rem}
+  :root:not([data-mode="substation"]) .libgrid .stat{border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  :root:not([data-mode="substation"]) .libgrid .stat:first-child,:root:not([data-mode="substation"]) .libgrid .stat:nth-child(odd):not(:first-child){border-right:0}
+  :root:not([data-mode="substation"]) .libgrid .stat:nth-last-child(-n+2){border-bottom:0}
+  :root[data-mode="substation"] .libgrid .stats{gap:8px}
+  .libmain{min-width:0}
+  .libgrid>.topband .bay{white-space:nowrap;overflow:hidden}
+  .libgrid>.topband .bay b{flex:none}
+  .libgrid>.topband .bay::after{min-width:0}
+}
+/* Use the full screen: wider page, bigger cover wall */
+@media(min-width:1000px){
+  .wrap{max-width:1840px}
+  .libgrid{grid-template-columns:290px minmax(0,1fr)}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr))}
+}
+@media(min-width:700px){
+  #list.lay-covers{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+  .lay-covers .poster{max-width:none}
+}
+@media(min-width:1000px){.libgrid>.topband{max-width:290px}}
+/* Phones: tighter header so the library starts sooner */
+@media(max-width:560px){
+  .wrap{padding-block:10px 90px}
+  header{padding:10px 0 8px;margin-bottom:12px}
+  h1{font-size:1.65rem}
+  .tools{gap:6px;justify-content:stretch}
+  .tools .row-a{width:100%;flex-wrap:nowrap;gap:6px}
+  .tools .row-a>.btn,.tools .row-a .menu,.tools .row-a .menu>.btn{flex:1 1 0;min-width:0}
+  .tools .row-a .menu{position:relative}
+  .tools .row-a .menu>.btn{width:100%}
+  .tools .btn{padding:9px 6px;font-size:.66rem;letter-spacing:.05em;white-space:nowrap}
+  .modes{width:100%;padding-left:0;border-left:0;flex-wrap:nowrap;gap:6px}
+  .modes>*{flex:1 1 0;min-width:0;padding-left:6px;padding-right:6px;font-size:.62rem;letter-spacing:.04em;white-space:nowrap;text-align:center;justify-content:center}
+  .tabs{margin-bottom:12px}
+  .topband{margin-bottom:10px}
+  .controls{margin-bottom:12px}
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="mast">
+      <div>
+        <div class="plate only-sub">HIGH VOLTAGE - DO NOT INTERRUPT</div>
+        <div class="file-no"><span class="not-sub">Dossier № 001 · Private Collection</span><span class="only-sub">UNIT-01 // READING GRID</span></div>
+        <h1>Substation Tower <em>Book Tracker</em></h1>
+      </div>
+      <div class="tools">
+        <div class="row-a">
+          <button class="btn solid" id="addBtn">+ New entry</button>
+          <div class="menu">
+            <button class="btn" id="dataBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="dataMenu">Data <span aria-hidden="true">▾</span></button>
+            <div class="menu-pop" id="dataMenu" role="menu" hidden>
+              <button class="mi" id="exportBtn" type="button" role="menuitem"><b>Export backup</b><small>Save all books as a JSON file</small></button>
+              <button class="mi" id="importBtn" type="button" role="menuitem"><b>Import file</b><small>Merge or replace from a JSON file</small></button>
+              <button class="mi" id="pasteBtn" type="button" role="menuitem"><b>Paste import</b><small>Import from pasted backup text</small></button>
+              <button class="mi" id="ghBtn" type="button" role="menuitem"><b>GitHub sync</b><small>Sync your library across devices</small></button>
+              <button class="mi danger" id="resetBtn" type="button" role="menuitem"><b>Reset tracker</b><small>Clear every book on all devices</small></button>
+            </div>
+          </div>
+          <button class="btn" id="guideBtn" type="button">? How to use</button>
+          <input type="file" id="importFile" accept="application/json,.json" hidden>
+        </div>
+        <div class="modes" role="group" aria-label="Display mode">
+          <button class="chip" id="ttpdBtn" type="button" aria-pressed="true"><span class="b-theme">TTPD</span><span class="b-mode"></span></button>
+                    <button class="chip" id="subBtn" type="button" aria-pressed="false"><span class="b-theme">Substation Tower</span><span class="b-mode"></span></button>
+        </div>
+      </div>
+    </div>
+    <div class="only-sub"><div class="statusbar">
+      <span class="sb"><i class="led"></i>GRID ONLINE</span>
+      <span class="sb"><i class="led"></i>STATE LATCHED</span>
+      <span class="sb" id="sbLoad">LOAD 0%</span>
+      <span class="sb" id="sbFeed">FEEDERS 0</span>
+      <span class="sb clock" id="sbClock">--:--:--</span>
+    </div></div>
+  </header>
+
+  <div class="tabs" role="group" aria-label="View">
+    <button class="chip" id="tabLib" type="button" data-view="library" aria-pressed="true">Library</button>
+    <button class="chip" id="tabDash" type="button" data-view="dashboard" aria-pressed="false">Dashboard</button>
+  </div>
+  <div id="viewLibrary" class="libgrid">
+  <aside class="topband">
+    <div class="tb-col">
+      <div class="only-sub"><div class="bay"><b>BAY-01</b>SUMMARY BUSBAR · TAP TO FILTER</div></div>
+      <section class="stats" aria-label="Summary. Tap a status to filter the library">
+        <button type="button" class="stat" data-st="All" aria-pressed="true"><span class="lbl">Total</span><span class="num" id="sTotal">0</span></button>
+        <button type="button" class="stat" data-st="Bought" aria-pressed="false"><span class="lbl">Bought</span><span class="num" id="sBought">0</span></button>
+        <button type="button" class="stat" data-st="Wishlist" aria-pressed="false"><span class="lbl">Wishlist</span><span class="num" id="sWish">0</span></button>
+        <button type="button" class="stat" data-st="Currently Reading" aria-pressed="false"><span class="lbl">Reading</span><span class="num" id="sReading">0</span></button>
+        <button type="button" class="stat" data-st="Finished" aria-pressed="false"><span class="lbl">Finished</span><span class="num" id="sFinished">0</span></button>
+      </section>
+    </div>
+    <div class="tb-col">
+      <div class="only-sub"><div class="bay"><b>BAY-02</b>ANNUAL TARGET</div></div>
+      <section class="goal" aria-label="Annual reading goal">
+        <div>
+          <h2><span class="not-sub"><span class="yr"></span> Reading Goal</span><span class="only-sub">CAPACITY LOAD // <span class="yr"></span> TARGET</span></h2>
+          <div class="line" id="goalLine"></div>
+        </div>
+        <div class="goal-edit">
+          <label for="goalInput">Goal</label>
+          <button type="button" class="gstep" data-g="-1" aria-label="Decrease goal">−</button>
+          <input type="number" id="goalInput" min="1" max="999">
+          <button type="button" class="gstep" data-g="1" aria-label="Increase goal">+</button>
+          <label for="currInput">Cur.</label>
+          <input type="text" id="currInput" maxlength="4">
+        </div>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="goalBar"><i id="goalFill"></i></div>
+        <div class="meter big" id="goalMeter" role="img" aria-label="Annual goal progress"></div>
+      </section>
+    </div>
+  </aside>
+  <div class="libmain">
+  <div class="only-sub"><div class="bay"><b>BAY-03</b>FEEDER CONTROLS</div></div>
+  <section class="controls" aria-label="Library filters">
+    <div class="row">
+      <input type="search" class="grow" id="search" placeholder="Search title, author, tag or notes…" aria-label="Search">
+      <div class="seg" id="layoutSeg" role="group" aria-label="Library layout"><button type="button" data-lay="cards" aria-pressed="true">Cards</button><button type="button" data-lay="list" aria-pressed="false">List</button><button type="button" data-lay="covers" aria-pressed="false">Covers</button></div>
+      <button type="button" class="btn small" id="collapseAll" hidden>Collapse all</button>
+      <select id="sort" aria-label="Sort">
+        <option value="new">Newest entry</option>
+        <option value="title">Title A–Z</option>
+        <option value="author">Author A–Z</option>
+        <option value="progress">Most progress</option>
+        <option value="rating">Highest rating</option>
+        <option value="year">Year released</option>
+      </select>
+    </div>
+    <div class="chips" id="statusChips" role="group" aria-label="Filter by status" hidden></div>
+    <div class="row">
+      <select id="genreSel" aria-label="Filter by genre"></select>
+      <select id="langSel" aria-label="Filter by language"></select>
+      <button class="btn small" id="clearBtn">Clear filters</button>
+      <button class="btn small" id="hiddenBtn" hidden></button>
+      <span class="count" id="count"></span>
+    </div>
+  </section>
+
+  <div class="only-sub"><div class="bay"><b>BAY-04</b>LIBRARY FEEDERS</div></div>
+  <main class="grid" id="list" aria-live="polite"></main>
+  </div>
+  </div>
+  <div id="viewDash" hidden>
+    <div class="only-sub"><div class="bay"><b>BAY-05</b>SYSTEM OVERVIEW</div></div>
+    <div id="dash"></div>
+  </div>
+  <footer><span class="not-sub">Typed &amp; filed · Saved on this device · Optional GitHub sync</span><span class="only-sub">UNIT-01 // READING GRID · LOCAL CACHE ACTIVE · GITHUB SYNC OPTIONAL</span><div id="syncState" role="status" style="display:block;margin-top:6px">Sync: connecting…</div></footer>
+</div>
+
+<dialog id="dlg">
+  <form id="bookForm" method="dialog" novalidate>
+    <div class="dhead"><h3 id="dlgTitle">New Entry</h3><button type="button" class="btn small" id="closeDlg">Close ✕</button></div>
+    <div class="form">
+      <div class="full"><label for="fTitle">Title *</label><input type="text" id="fTitle" required></div>
+      <div><label for="fAuthor">Author</label><input type="text" id="fAuthor"></div>
+      <div><label for="fGenre">Genre / Tag</label><input type="text" id="fGenre" placeholder="e.g. Fantasy, Adventure" autocomplete="off"><div class="gchips" id="genreChips" aria-label="Pick existing genres"></div></div>
+      <div><label for="fLang">Language</label><input type="text" id="fLang" list="langList" placeholder="e.g. English"><datalist id="langList"></datalist></div>
+      <div><label for="fEdition">Edition / Format</label><input type="text" id="fEdition" list="edList" placeholder="e.g. Manga, Hardcover"><datalist id="edList"></datalist></div>
+      <div class="full" id="multiWrap"><label class="chk" for="fMulti"><input type="checkbox" id="fMulti"> This title has several volumes: add a range (for example 1 to 70)</label></div>
+      <div><div id="volSingle"><label for="fVolume">Volume number</label><input type="number" id="fVolume" min="0" step="any" placeholder="Empty for a single book"></div><div id="volRange" hidden><label for="fFrom">Volumes, from and to</label><div class="rating-row"><input type="number" id="fFrom" min="0" step="1" value="1"><input type="number" id="fTo" min="0" step="1" value="10"></div></div></div>
+      <div id="vlabelWrap"><label for="fVLabel">Volume name (optional)</label><input type="text" id="fVLabel" maxlength="30" placeholder="e.g. Prologue"></div>
+      <div class="full" id="extraWrap" hidden><label for="fExtra">Extra volumes (optional)</label><input type="text" id="fExtra" placeholder="e.g. 0, 0.5   or   0=Prologue, 0.5=Special prologue"><span class="note">Volume 0 is named Prologue and 0.5 Special prologue automatically. Leave the range above empty to add only these.</span></div>
+      <div><label for="fStatus">Status</label>
+        <select id="fStatus"><option>Wishlist</option><option>Bought</option><option>Currently Reading</option><option>Finished</option></select></div>
+      <div><label for="fTotal">Total Pages</label><input type="number" id="fTotal" min="0" value="0"></div>
+      <div><label for="fCur">Current Page</label><input type="number" id="fCur" min="0" value="0"></div>
+      <div><label for="fPrice">Price</label><input type="number" id="fPrice" min="0" step="0.01" value="0"></div>
+      <div><label for="fRatingNum">Rating (0–100%)</label>
+        <div class="rating-row"><input type="range" id="fRating" min="0" max="100" step="1" value="0" aria-label="Rating slider"><input type="number" id="fRatingNum" min="0" max="100" value="0"></div></div>
+      <div><label for="fYear">Year released</label><input type="number" id="fYear" min="1000" max="2200" step="1" placeholder="e.g. 1999"></div>
+      <div><label for="fBought">Year bought</label><input type="number" id="fBought" min="1000" max="2200" step="1"></div>
+      <div><label for="fStarted">Year started</label><input type="number" id="fStarted" min="1000" max="2200" step="1"></div>
+      <div><label for="fFinished">Year finished</label><input type="number" id="fFinished" min="1000" max="2200" step="1"></div>
+      <div class="full"><label for="fCover">Cover</label>
+        <div class="cover-field"><div class="cover-prev" id="coverPrev" aria-hidden="true"></div>
+          <div class="cover-ctl"><input type="file" id="fCover" accept="image/*"><button type="button" class="btn small" id="coverClear">Remove cover</button><span class="note">JPEG or PNG. The image is shrunk and kept in this browser.</span></div></div></div>
+      <div class="full"><label for="fNotes">Notes &amp; Quotes</label><textarea id="fNotes"></textarea></div>
+      <div class="fact-actions">
+        <button type="button" class="btn danger" id="delEntry" hidden>Delete entry</button>
+        <button type="button" class="btn" id="cancelDlg">Cancel</button>
+        <button type="submit" class="btn solid">Save Entry</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="askDlg">
+  <div class="dhead"><h3 id="askTitle">Confirm</h3></div>
+  <div class="ask-body"><p id="askMsg"></p><div class="ask-actions" id="askActions"></div></div>
+</dialog>
+<button type="button" class="fab" id="fabAdd" aria-label="New entry"><span class="plus" aria-hidden="true">+</span><span class="lbl">New entry</span></button>
+<dialog id="ghDlg">
+  <div class="dhead"><h3>GitHub sync</h3><button type="button" class="btn small" id="ghClose">Close ✕</button></div>
+  <div class="guide">
+    <label for="ghRepo">Repository (owner/name)</label><input type="text" id="ghRepo" placeholder="yourname/book-tracker" autocomplete="off" spellcheck="false" style="width:100%">
+    <label for="ghToken" style="margin-top:8px;display:block">Access token</label><input type="password" id="ghToken" placeholder="github_pat_…" autocomplete="off" spellcheck="false" style="width:100%">
+    <label for="ghPath" style="margin-top:8px;display:block">File name in the repository</label><input type="text" id="ghPath" value="data/library.json" autocomplete="off" spellcheck="false" style="width:100%">
+    <p id="ghStatus" role="status" style="margin-top:10px"></p>
+    <div class="row" style="margin-top:6px;gap:8px;flex-wrap:wrap"><button type="button" class="btn small solid" id="ghSaveBtn">Save &amp; sync</button><button type="button" class="btn small" id="ghNow">Sync now</button><button type="button" class="btn small" id="ghLink">Copy setup link</button><button type="button" class="btn small danger" id="ghOff">Disconnect</button></div>
+    <div style="margin-top:14px"><b style="font-family:var(--type);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase">Saves</b>
+      <p style="font-size:.85rem;margin:4px 0 8px">A save is a copy of your library kept in GitHub. One is made automatically about once a day, and you can make one yourself before a big change.</p>
+      <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn small solid" id="ghSaveCopy">Save a copy now</button><button type="button" class="btn small" id="ghSaveList">Refresh list</button></div>
+      <div id="ghSaves" style="margin-top:8px"></div></div>
+    <details style="margin-top:12px"><summary style="cursor:pointer;font-family:var(--type);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase">Setup help</summary>
+    <p>Keep your library in a <b>private</b> GitHub repository so every device you open stays in step. Steps: (1) use your <i>book-tracker</i> repository, or a separate private one; (2) on GitHub open Settings → Developer settings → Personal access tokens → Fine-grained tokens, choose that one repository, and give it <b>Contents: Read and write</b>; (3) paste the repository and token below on each device.</p>
+    <p style="font-size:.8rem;opacity:.75;margin-top:10px">The token is stored only in this browser. Use a token limited to the one repository. Cover images are saved as separate files in a covers folder of the same repository.</p>
+    </details>
+  </div>
+</dialog>
+<dialog id="txtDlg">
+  <div class="dhead"><h3>Backup text</h3><button type="button" class="btn small" id="closeTxt">Close ✕</button></div>
+  <div class="guide"><p id="txtHelp"></p><textarea id="txtArea" rows="10" style="width:100%;font:12px/1.4 monospace" spellcheck="false"></textarea>
+  <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button type="button" class="btn small solid" id="txtCopy">Copy</button><button type="button" class="btn small" id="txtImport">Import pasted text</button></div></div>
+</dialog>
+<dialog id="guideDlg">
+  <div class="dhead"><h3><span class="not-sub">How to use</span><span class="only-sub">OPERATING MANUAL</span></h3><button type="button" class="btn small" id="closeGuide">Close ✕</button></div>
+  <div class="guide">
+    <section><h4>Add a book</h4><p>Press <b>+ New Entry</b>. Only the title is required. Pick a status: Wishlist, Bought, Currently Reading or Finished. Rate the book from 0 to 100%, and add notes or quotes if you like.</p></section>
+    <section><h4>Update your progress</h4><p>Press <b>Quick update</b> on a card. Type the page you reached or use −10, −1, +1 and +10, then press <b>Save</b>. You can change the status and notes there too. Reaching the last page marks the book Finished, and moving a Wishlist or Bought book past page 0 sets it to Currently Reading.</p></section>
+    <section><h4>Edit or delete</h4><p><b>Edit</b> opens the full form for every field. <b>Delete</b> asks you to confirm before it removes the book.</p></section>
+    <section><h4>Find books</h4><p>Search looks through titles, authors, genres, languages and notes. Narrow the list with the status buttons and the genre and language menus, and choose a sort order. <b>Clear filters</b> resets everything.</p></section>
+    <section><h4>Add a title with many volumes</h4><p>In the New Entry form, type the title (for example Naruto) and the edition (for example Manga). Tick <b>This title has several volumes</b> and enter a range such as 1 to 70 to create every volume at once. Volumes with the same title and edition are grouped into one series card with a tile for each volume. Press a tile to update that volume's page, status or notes. <b>Bulk update</b> sets a range of volumes to one status, and <b>Add volumes</b> extends the series.</p></section>
+    <section><h4>Use the dashboard</h4><p>Open the <b>Dashboard</b> tab for your totals, the annual goal gauge, books finished per month, status, genre, language and rating breakdowns, series progress and what you are reading now.</p></section>
+    <section><h4>Using it on other devices</h4><p>Your library syncs to your Claude account. Open this page signed in to Claude on any phone, tablet or computer and the same books, covers and goal appear, and changes made on one device show up on the others. Theme and tab choices stay per device. The first time you open it on a new device, the library already saved to your account is loaded. Export a JSON backup now and then as a safety copy. Reset clears the library on every device, so export first if unsure.</p></section>
+    <section><h4>Adding fast and changing the layout</h4><p>The round + New entry button stays in the corner on every tab, and pressing N on a keyboard opens it too. Above the library, choose Cards (full detail), List (one compact row per book) or Covers (a poster wall). In Covers, each book is a small poster showing only its cover. Hover over one to see its title, and tap it to expand the full entry in place. Press Collapse on the entry, or Collapse all at the top, to return to posters. A series shows as one poster with its volume count. The edit window also has Delete entry. The numbers on the status buttons count the books in each status. Status colours: ochre is Bought, teal is Reading, green is Finished, grey is Wishlist.</p></section>
+    <section><h4>Several formats of one title</h4><p>For a title that comes in more than one format (for example Jujutsu Kaisen as Manga, Light Novel and Databook), file each format with the same title and a different <b>Edition</b>. They are grouped into one title. The main format is shown first, and the other formats appear in an <b>Other formats</b> section under its volumes. In Covers layout the poster shows the number of formats.</p></section>
+    <section><h4>Add volumes to an existing entry</h4><p>On any single entry, tap <b>Add volumes</b>. The entry becomes Volume 1 of a series (if it had no volume number) and the volumes you list are filed next to it, sharing its details and cover.</p></section>
+    <section><h4>Prologue and half volumes</h4><p>Volume numbers can be 0 or have decimals. Volume 0 is named <b>Prologue</b> and 0.5 is named <b>Special prologue</b> automatically, and they sort before Volume 1. When adding a series, use <b>Extra volumes</b> to list them, for example <i>0, 0.5</i>, or give your own names with <i>0=Prologue, 0.5=Side story</i>. Clear the range to add only the extras. To rename one volume later, edit it and fill in Volume name.</p></section>
+    <section><h4>Several genres and the series cover</h4><p>In the Genre / Tag field, separate genres with commas, for example <i>Fantasy, Adventure</i>, or tap the genre buttons under the field to add or remove ones you already use. Each genre shows as its own tag, the genre filter matches any of them, and the Dashboard counts each one. For a series, give volumes their own covers with Edit, then open a volume and press <b>Use as series cover</b> to choose which cover shows on the series card. Press it again to go back to automatic.</p></section>
+    <section><h4>Hiding entries</h4><p>Press Hide on a book, or Hide series on a series, to take it out of the library list without deleting it. Hidden entries are still saved, synced and counted on the Dashboard. When some are hidden, a Show hidden button appears beside the filters, and Unhide brings an entry back.</p></section>
+    <section><h4>Covers and years</h4><p>In the form, choose a cover image for a book. It is shrunk and saved to your library, and volumes added together share one cover. Fill in the year released and the years you bought, started and finished it. Changing a status fills the matching year with this year if it is empty, and you can edit any year later. The Dashboard shows releases by decade and your activity by year.</p></section>
+    <section><h4>Set your yearly goal</h4><p>Type a number in the <b>Goal</b> box. The meter counts the books you finished this year. The <b>Currency</b> box changes the prefix on prices.</p></section>
+    <section><h4>Switch theme and mode</h4><p>Two buttons control the look. <b>TTPD</b> is the typewriter manuscript theme and <b>Substation Tower</b> is the industrial control-panel theme. Press the button of the theme you are not using to switch to it. Press the button of the active theme to flip between its light and dark modes: The Parchment and The Anthology for TTPD, Daylight Shift and Blackout for Substation Tower. The app remembers your last choice.</p></section>
+    <section class="only-sub"><h4>Reading the panel</h4><p>On the meters, green is early progress, yellow is past 60% and red is past 85%. The stripe on each card shows its status: yellow for reading, green for finished, and grey for bought or wishlist.</p></section>
+    <section><h4>Back up your list</h4><p>Open the <b>Data</b> menu in the header. <b>Export backup</b> saves a JSON file, or shows the text to copy if saving is unavailable. <b>Import file</b> and <b>Paste import</b> load a backup and let you replace your library or merge into it. <b>Reset tracker</b> clears every book on all your devices. Your library is saved to your account, but export a backup now and then as a safety copy.</p></section>
+  </div>
+</dialog>
+<div id="toast" role="status"></div>
+
+<script>
+(() => {
+  'use strict';
+  const KEY = 'readingArchive.v1';
+  const STATUSES = ['Wishlist', 'Bought', 'Currently Reading', 'Finished'];
+  const MODES = ['parchment', 'anthology', 'substation'];
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+  const num = (v, d = 0) => { const n = parseFloat(v); return Number.isFinite(n) ? n : d; };
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const YEAR = new Date().getFullYear();
+
+  let state = { books: [], goal: 12, theme: 'ttpd', ttpd: 'light', sub: 'dark', view: 'library', currency: 'RM', covers: {}, layout: 'cards' };
+  const f = { q: '', status: 'All', genre: 'All', lang: 'All', sort: 'new', hidden: false };
+  const openQuick = new Set(), openPoster = new Set(), fTab = new Map();
+  let openVol = null, openBulk = null;
+  let editingId = null;
+
+  /* ---------- storage ---------- */
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s && Array.isArray(s.books)) {
+          const keepCovers = state.covers; state = Object.assign(state, s); state.covers = Object.assign({}, s.covers || {}, keepCovers || {});
+          if (state.theme !== 'ttpd' && state.theme !== 'sub') state.theme = s.mode === 'substation' ? 'sub' : 'ttpd';
+          if (state.ttpd !== 'light' && state.ttpd !== 'dark') state.ttpd = (s.mode === 'anthology' || s.base === 'anthology' || s.theme === 'dark') ? 'dark' : 'light';
+          if (state.sub !== 'light' && state.sub !== 'dark') state.sub = 'dark';
+          if (state.view !== 'dashboard') state.view = 'library';
+          if (!state.covers || typeof state.covers !== 'object') state.covers = {};
+          if (!['cards', 'list', 'covers'].includes(state.layout)) state.layout = 'cards';
+          return;
+        }
+      }
+    } catch (e) {}
+    seed(); state.seed = true; save(true);
+  }
+  function save(fromLoad) {
+    pruneCovers();
+    if (!fromLoad) state.seed = false;
+    persistLocal();
+    if (!fromLoad) { queuePush(); ghQueue(); }
+  }
+  /* books stay in localStorage (small); cover images live in IndexedDB, which has far more room */
+  let coversReady = false, coverTimer = null;
+  const idbOpen = () => new Promise(res => { try { const r = indexedDB.open('bookTracker', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); r.onblocked = () => res(null); } catch (e) { res(null); } });
+  const idbGet = async k => { const d = await idbOpen(); if (!d) return null; return new Promise(res => { try { const q = d.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); } catch (e) { res(null); } }); };
+  const idbSet = async (k, v) => { const d = await idbOpen(); if (!d) return false; return new Promise(res => { try { const t = d.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = () => res(true); t.onerror = () => res(false); t.onabort = () => res(false); } catch (e) { res(false); } }); };
+  function persistCovers() { if (!coversReady) return; clearTimeout(coverTimer); coverTimer = setTimeout(async () => { const ok = await idbSet('covers', state.covers); if (!ok) { try { localStorage.setItem(KEY + '.covers', JSON.stringify(state.covers)); } catch (e) { toast('Covers could not be stored on this device'); } } }, 300); }
+  async function loadCovers() {
+    let saved = await idbGet('covers');
+    if (!saved) { try { saved = JSON.parse(localStorage.getItem(KEY + '.covers') || 'null'); } catch (e) { saved = null; } }
+    state.covers = Object.assign({}, saved || {}, state.covers || {});
+    coversReady = true; pruneCovers(); persistCovers();
+  }
+  function persistLocal() {
+    try { localStorage.setItem(KEY, JSON.stringify(Object.assign({}, state, { covers: coversReady ? {} : state.covers }))); }
+    catch (e) { toast('Storage is full — export a backup'); }
+    persistCovers();
+  }
+
+  /* ---------- shared database: one document per book, per-document last-write-wins ---------- */
+  let db = null, ready = false, pushTimer = null, pushing = false, again = false;
+  const shadow = { books: new Map(), covers: new Set(), settings: '' };
+  const strip = b => { const c = Object.assign({}, b); delete c.u; return JSON.stringify(c); };
+  const errText = e => (e && (e.code || e.message)) || 'error';
+  const clock = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  function setSync(t) { const e = $('syncState'); if (e) e.textContent = 'Sync: ' + t; }
+  function queuePush() { if (!ready) return; clearTimeout(pushTimer); pushTimer = setTimeout(push, 400); }
+  async function batch(items, fn) { for (let i = 0; i < items.length; i += 12) await Promise.all(items.slice(i, i + 12).map(fn)); }
+  async function push() {
+    pushTimer = null;
+    if (!ready) return;
+    if (pushing) { again = true; return; }
+    pushing = true;
+    try {
+      const now = Date.now(), ids = new Set(state.books.map(b => b.id));
+      const dirty = state.books.filter(b => shadow.books.get(b.id) !== strip(b));
+      await batch(dirty, async b => { b.u = now; await db.collection('books').doc(b.id).set(JSON.parse(JSON.stringify(b))); shadow.books.set(b.id, strip(b)); });
+      await batch([...shadow.books.keys()].filter(id => !ids.has(id)), async id => { await db.collection('books').doc(id).delete(); shadow.books.delete(id); });
+      await batch(Object.keys(state.covers).filter(id => !shadow.covers.has(id)), async id => { await db.collection('covers').doc(id).set({ data: state.covers[id] }); shadow.covers.add(id); });
+      await batch([...shadow.covers].filter(id => !(id in state.covers)), async id => { await db.collection('covers').doc(id).delete(); shadow.covers.delete(id); });
+      const sj = JSON.stringify([state.goal, state.currency]);
+      if (shadow.settings !== sj) { await db.doc('settings/main').set({ goal: state.goal, currency: state.currency, migrated: true, u: now }); shadow.settings = sj; }
+      persistLocal(); setSync('saved ' + clock());
+    } catch (e) { setSync('failed (' + errText(e) + ') — kept on this device'); toast('Sync failed — kept on this device'); }
+    finally { pushing = false; if (again) { again = false; push(); } }
+  }
+  function applySettings(m) {
+    if (Number.isFinite(m.goal) && m.goal >= 1) state.goal = m.goal;
+    if (typeof m.currency === 'string') state.currency = m.currency;
+    shadow.settings = JSON.stringify([state.goal, state.currency]);
+  }
+  let firstBooks = true, firstCovers = true;
+  function onBooks(snap) {
+    setSync('on · updated ' + clock());
+    let changed = false;
+    if (firstBooks) {
+      firstBooks = false; changed = true;
+      state.books = []; shadow.books = new Map();
+      snap.docs.forEach(d => { const v = d.data() || {}; if (!v.title) return; const nb = normalise(Object.assign({}, v, { id: d.id })); nb.u = v.u || 0; shadow.books.set(nb.id, strip(nb)); state.books.push(nb); });
+    } else {
+      snap.docChanges().forEach(ch => {
+        const id = ch.doc.id, v = ch.doc.data() || {};
+        const i = state.books.findIndex(x => x.id === id), cur = i >= 0 ? state.books[i] : null;
+        if (ch.type === 'removed') { shadow.books.delete(id); if (cur) { state.books.splice(i, 1); changed = true; } return; }
+        if (!v.title) return;
+        if (cur && ((cur.u || 0) > (v.u || 0) || (strip(cur) !== shadow.books.get(id) && (v.u || 0) <= (cur.u || 0)))) return;
+        const nb = normalise(Object.assign({}, v, { id })); nb.u = v.u || 0;
+        shadow.books.set(id, strip(nb));
+        if (cur && strip(cur) === strip(nb)) { cur.u = nb.u; return; }
+        if (cur) state.books[i] = nb; else state.books.push(nb);
+        changed = true;
+      });
+    }
+    if (changed) { persistLocal(); renderAll(); }
+  }
+  function onCovers(snap) {
+    let changed = false;
+    if (firstCovers) { firstCovers = false; changed = true; state.covers = {}; shadow.covers = new Set(); }
+    const apply = (id, v, removed) => {
+      if (removed) { shadow.covers.delete(id); if (id in state.covers) { delete state.covers[id]; changed = true; } return; }
+      if (typeof v.data === 'string' && /^data:image\//.test(v.data)) { shadow.covers.add(id); if (state.covers[id] !== v.data) { state.covers[id] = v.data; changed = true; } }
+    };
+    if (changed) snap.docs.forEach(d => apply(d.id, d.data() || {}, false));
+    else snap.docChanges().forEach(ch => apply(ch.doc.id, ch.doc.data() || {}, ch.type === 'removed'));
+    if (changed) { persistLocal(); renderAll(); }
+  }
+  function onSettings(snap) {
+    if (!snap.exists || pushing || pushTimer) return;
+    const m = snap.data() || {};
+    if (JSON.stringify([m.goal, m.currency]) === shadow.settings) return;
+    applySettings(m); persistLocal(); renderAll();
+  }
+  /* First run only: move the older private library (and this device's saved copy) into the shared collections. */
+  async function migrate(userId) {
+    const books = new Map(), covers = {}; let goal = state.goal, currency = state.currency;
+    if (userId) {
+      try {
+        const snap = await db.collection('data/users/' + userId).get();
+        snap.docs.forEach(d => {
+          const v = d.data() || {};
+          if (d.id === 'library' && Array.isArray(v.books)) { v.books.forEach(b => { if (b && b.id && b.title) books.set(b.id, b); }); if (Number.isFinite(v.goal)) goal = v.goal; if (typeof v.currency === 'string') currency = v.currency; }
+          else if (d.id.indexOf('cover-') === 0 && typeof v.data === 'string') covers[d.id.slice(6)] = v.data;
+        });
+      } catch (e) {}
+    }
+    if (!state.seed || !books.size) state.books.forEach(b => books.set(b.id, b));
+    Object.assign(covers, state.covers);
+    state.books = [...books.values()].map(b => normalise(Object.assign({}, b)));
+    state.covers = covers; state.goal = goal; state.currency = currency; state.seed = false;
+    pruneCovers(); persistLocal(); renderAll();
+    ready = true; await push();
+  }
+
+  /* ---------- optional GitHub sync (private repository file, per-book last-write-wins) ---------- */
+  const GHK = 'ghSync.v1';
+  let gh = null, ghBusy = false, ghAgain = false, ghTimer = null;
+  try { gh = JSON.parse(localStorage.getItem(GHK) || 'null'); } catch (e) { gh = null; }
+  try { const m = /^#gh=(.+)$/.exec(location.hash); if (m) { const c = JSON.parse(decodeURIComponent(escape(atob(m[1])))); if (c && c.repo && c.token) { gh = { repo: String(c.repo), token: String(c.token), path: String(c.path || 'library.json'), shadow: null }; try { localStorage.setItem(GHK, JSON.stringify(gh)); } catch (e) {} } history.replaceState(null, '', location.pathname + location.search); } } catch (e) {}
+  function ghStore() { try { localStorage.setItem(GHK, JSON.stringify(gh)); } catch (e) {} }
+  function ghStatus(t) { setSync(t); const e = $('ghStatus'); if (e) e.textContent = t; }
+  function ghQueue() { if (!gh || !gh.token) return; clearTimeout(ghTimer); ghTimer = setTimeout(() => ghSync(), 1500); }
+  const b64enc = str => { const by = new TextEncoder().encode(str); let bin = ''; for (let i = 0; i < by.length; i += 0x8000) bin += String.fromCharCode.apply(null, by.subarray(i, i + 0x8000)); return btoa(bin); };
+  const b64dec = str => new TextDecoder().decode(Uint8Array.from(atob(str.replace(/\s/g, '')), c => c.charCodeAt(0)));
+  const ghUrl = () => `https://api.github.com/repos/${gh.repo}/contents/${gh.path.split('/').map(encodeURIComponent).join('/')}`;
+  const ghHead = raw => ({ Authorization: 'Bearer ' + gh.token, Accept: raw ? 'application/vnd.github.raw+json' : 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' });
+  async function ghGet() {
+    const r = await fetch(ghUrl() + '?t=' + Date.now(), { headers: ghHead(false), cache: 'no-store' });
+    if (r.status === 404) {
+      const rr = await fetch('https://api.github.com/repos/' + gh.repo, { headers: ghHead(false), cache: 'no-store' });
+      if (rr.status === 404) throw new Error('repository not found, or the token cannot see it');
+      return { sha: null, raw: '', data: null };
+    }
+    if (r.status === 401 || r.status === 403) throw new Error('token rejected (' + r.status + ')');
+    if (!r.ok) throw new Error('GitHub error ' + r.status);
+    const j = await r.json();
+    let raw = j.content && j.encoding === 'base64' ? b64dec(j.content) : '';
+    if (!raw && j.size > 0) { const r2 = await fetch(ghUrl() + '?t=' + Date.now(), { headers: ghHead(true), cache: 'no-store' }); if (!r2.ok) throw new Error('GitHub error ' + r2.status); raw = await r2.text(); }
+    let data = null; if (raw.trim()) { try { data = JSON.parse(raw); } catch (e) { throw new Error('the file in the repository is not valid JSON'); } }
+    return { sha: j.sha, raw, data };
+  }
+  function ghMerge(rem) {
+    const now = Date.now(), sh = gh.shadow || { books: {}, goal: null, currency: null };
+    const before = state.books.map(strip).join('|') + state.goal + state.currency;
+    if (state.seed && !gh.shadow && rem && Array.isArray(rem.books) && rem.books.length) state.books = [];
+    const local = new Map(state.books.map(b => [b.id, b]));
+    const rb = new Map(((rem && rem.books) || []).filter(b => b && b.id && b.title).map(b => [b.id, b]));
+    const del = Object.assign({}, (rem && rem.deleted) || {});
+    state.books.forEach(b => { if (sh.books[b.id] !== strip(b)) b.u = now; });
+    Object.keys(sh.books).forEach(id => { if (!local.has(id)) del[id] = now; });
+    const out = [];
+    new Set([...local.keys(), ...rb.keys()]).forEach(id => {
+      const L = local.get(id), R = rb.get(id), T = del[id];
+      let pick = L && R ? ((R.u || 0) > (L.u || 0) ? R : L) : (L || R);
+      if (T) { if ((pick.u || 0) > T) delete del[id]; else pick = null; }
+      if (pick) { if (pick === R) { const nb = normalise(Object.assign({}, R, { id })); nb.u = R.u || 0; pick = nb; } out.push(pick); }
+    });
+    Object.keys(del).forEach(id => { if (now - del[id] > 90 * 864e5) delete del[id]; });
+    out.sort((a, b) => a.id < b.id ? -1 : 1);
+    state.books = out; state.seed = false;
+    state.covers = Object.assign({}, (rem && rem.covers) || {}, state.covers);
+    pruneCovers();
+    const localSettingsChanged = gh.shadow && (state.goal !== sh.goal || state.currency !== sh.currency);
+    if (rem && !localSettingsChanged) { if (Number.isFinite(rem.goal) && rem.goal >= 1) state.goal = rem.goal; if (typeof rem.currency === 'string') state.currency = rem.currency; }
+    const deleted = {}; Object.keys(del).sort().forEach(k => deleted[k] = del[k]);
+    const doc = { v: 2, goal: state.goal, currency: state.currency, books: out.map(b => JSON.parse(JSON.stringify(b))), deleted };
+    const shadowBooks = {}; out.forEach(b => shadowBooks[b.id] = strip(b));
+    return { doc, shadow: { books: shadowBooks, goal: state.goal, currency: state.currency }, changed: before !== state.books.map(strip).join('|') + state.goal + state.currency };
+  }
+
+  /* covers live as image files in a covers/ folder of the data repository */
+  const ghDir = () => gh.path.includes('/') ? gh.path.slice(0, gh.path.lastIndexOf('/') + 1) : '';
+  const ghCoverUrl = name => `https://api.github.com/repos/${gh.repo}/contents/${ghDir()}covers/${encodeURIComponent(name)}`;
+  const MIME = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif' };
+  async function ghList() {
+    const r = await fetch(`https://api.github.com/repos/${gh.repo}/contents/${ghDir()}covers?t=${Date.now()}`, { headers: ghHead(false), cache: 'no-store' });
+    if (r.status === 404) return {};
+    if (!r.ok) throw new Error('GitHub error ' + r.status + ' (covers folder)');
+    const j = await r.json(), out = {};
+    if (Array.isArray(j)) j.forEach(f => { if (f.type === 'file') out[f.name.replace(/\.[^.]+$/, '')] = f.name; });
+    return out;
+  }
+  async function ghPullCovers(list) {
+    const need = [...new Set(state.books.map(b => b.cover).filter(Boolean))].filter(id => !state.covers[id] && list[id]);
+    let n = 0;
+    for (let i = 0; i < need.length; i += 6) await Promise.all(need.slice(i, i + 6).map(async id => {
+      const r = await fetch(ghCoverUrl(list[id]) + '?t=' + Date.now(), { headers: ghHead(false), cache: 'no-store' });
+      if (!r.ok) return;
+      const j = await r.json(), ext = list[id].split('.').pop().toLowerCase();
+      if (j.content) { state.covers[id] = `data:${MIME[ext] || 'image/jpeg'};base64,${j.content.replace(/\s/g, '')}`; n++; }
+    }));
+    return n;
+  }
+  async function ghPushCovers(list) {
+    const todo = Object.keys(state.covers).filter(id => state.covers[id] && !list[id]);
+    let k = 0;
+    for (const id of todo) {
+      const m = /^data:(image\/[\w+.-]+);base64,(.+)$/.exec(state.covers[id]); if (!m) continue;
+      const ext = Object.keys(MIME).find(e => MIME[e] === m[1]) || 'jpg', name = id + '.' + ext;
+      ghStatus(`uploading covers ${++k}/${todo.length}…`);
+      for (let t = 0; t < 3; t++) {
+        const put = await fetch(ghCoverUrl(name), { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead(false)), body: JSON.stringify({ message: 'Add cover', content: m[2] }) });
+        if (put.status === 409) { await new Promise(r => setTimeout(r, 600)); continue; }
+        if (put.status === 401 || put.status === 403) throw new Error('token rejected, it needs Contents: Read and write');
+        if (!put.ok && put.status !== 422) throw new Error('GitHub error ' + put.status + ' (cover)');
+        break;
+      }
+      list[id] = name;
+    }
+  }
+  let ghHold = false;
+  async function ghGuard() {
+    const sh = gh.shadow; if (!sh) return true;
+    const have = new Set(state.books.map(b => b.id)), ids = Object.keys(sh.books), lost = ids.filter(id => !have.has(id)).length;
+    if (lost < Math.max(3, Math.ceil(ids.length * 0.25))) return true;
+    const c = await choose('This device is missing books', `GitHub has ${ids.length} books from your last sync, but this device now has only ${state.books.length}. This usually means this browser lost its saved data. Restore the missing books from GitHub (recommended), or delete them everywhere?`, [
+      { label: 'Restore from GitHub', value: 'restore', cls: 'solid' }, { label: 'Delete them everywhere', value: 'delete', cls: 'danger' }, { label: 'Not now', value: false }]);
+    if (c === 'restore') { gh.shadow = null; ghStore(); return true; }
+    if (c === 'delete') return true;
+    ghHold = true; ghStatus('paused: this device is missing books (press Sync now to decide)'); return false;
+  }
+  async function ghSync(manual) {
+    if (!gh || !gh.token) return;
+    if (manual) ghHold = false;
+    if (ghHold) return;
+    if (ghBusy) { ghAgain = true; return; }
+    ghBusy = true; ghStatus('syncing…');
+    try {
+      if (!(await ghGuard())) return;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const r = await ghGet();
+        const list = await ghList();
+        const m = ghMerge(r.data), text = JSON.stringify(m.doc);
+        const got = await ghPullCovers(list); await ghPushCovers(list);
+        if (got) m.changed = true;
+        if (text !== r.raw.trim()) {
+          const put = await fetch(ghUrl(), { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead(false)), body: JSON.stringify({ message: 'Book tracker sync', content: b64enc(text), sha: r.sha || undefined }) });
+          if (put.status === 409 || put.status === 422) { if (attempt < 2) continue; throw new Error('the file changed while saving, try again'); }
+          if (put.status === 401 || put.status === 403) throw new Error('token rejected, it needs Contents: Read and write');
+          if (!put.ok) throw new Error('GitHub error ' + put.status);
+        }
+        gh.shadow = m.shadow; ghStore(); persistLocal();
+        if (m.changed) renderAll();
+        ghStatus('GitHub synced ' + clock());
+        if (state.books.length && (!gh.lastAuto || Date.now() - gh.lastAuto > 864e5)) { try { await ghSnapshot('auto'); gh.lastAuto = Date.now(); ghStore(); } catch (e) {} }
+        break;
+      }
+    } catch (e) { ghStatus('GitHub sync failed (' + ((e && e.message) || 'error') + ') — kept on this device'); }
+    finally { ghBusy = false; if (ghAgain) { ghAgain = false; ghQueue(); } }
+  }
+
+  /* ---------- saves: dated copies of the library kept in a saves/ folder ---------- */
+  const ghSaveUrl = name => `https://api.github.com/repos/${gh.repo}/contents/${ghDir()}saves${name ? '/' + encodeURIComponent(name) : ''}`;
+  const two = n => String(n).padStart(2, '0');
+  async function ghSnapshot(kind) {
+    const d = new Date(), stamp = `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}_${two(d.getHours())}-${two(d.getMinutes())}-${two(d.getSeconds())}`;
+    const doc = { v: 2, goal: state.goal, currency: state.currency, books: state.books.map(b => JSON.parse(JSON.stringify(b))), deleted: {} };
+    const put = await fetch(ghSaveUrl(`${kind}-${stamp}.json`), { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead(false)), body: JSON.stringify({ message: 'Save ' + kind, content: b64enc(JSON.stringify(doc)) }) });
+    if (!put.ok && put.status !== 422) throw new Error('GitHub error ' + put.status + ' (save)');
+    if (kind !== 'save') {
+      try {
+        const files = await ghListSaves(), old = files.filter(f => !f.name.startsWith('save-')).sort((a, b) => a.name < b.name ? -1 : 1);
+        for (const f of old.slice(0, Math.max(0, old.length - 15))) await fetch(ghSaveUrl(f.name), { method: 'DELETE', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead(false)), body: JSON.stringify({ message: 'Remove old save', sha: f.sha }) });
+      } catch (e) {}
+    }
+  }
+  async function ghListSaves() {
+    const r = await fetch(ghSaveUrl('') + '?t=' + Date.now(), { headers: ghHead(false), cache: 'no-store' });
+    if (r.status === 404) return [];
+    if (!r.ok) throw new Error('GitHub error ' + r.status);
+    const j = await r.json();
+    return Array.isArray(j) ? j.filter(f => f.type === 'file' && f.name.endsWith('.json')) : [];
+  }
+  function saveLabel(name) {
+    const m = /^(save|auto|before)-(\d{4})-(\d\d)-(\d\d)_(\d\d)-(\d\d)/.exec(name); if (!m) return name;
+    const d = new Date(+m[2], +m[3] - 1, +m[4], +m[5], +m[6]);
+    return d.toLocaleString([], { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' · ' + ({ save: 'Saved by you', auto: 'Automatic', before: 'Before loading a save' })[m[1]];
+  }
+  async function ghShowSaves() {
+    const box = $('ghSaves'); if (!gh || !gh.token) { box.textContent = 'Connect GitHub first.'; return; }
+    box.textContent = 'Loading…';
+    try {
+      const files = (await ghListSaves()).sort((a, b) => a.name < b.name ? 1 : -1);
+      box.innerHTML = files.length ? files.map(f => `<div class="row" style="justify-content:space-between;align-items:center;gap:8px;border-top:1px dashed var(--line);padding:6px 0"><span style="font-size:.85rem">${esc(saveLabel(f.name))}</span><button type="button" class="btn small" data-load="${esc(f.name)}">Load</button></div>`).join('') : 'No saves yet.';
+    } catch (e) { box.textContent = 'Could not list saves (' + ((e && e.message) || 'error') + ')'; }
+  }
+  async function ghLoadSave(name) {
+    const ok = await choose('Load this save?', saveLabel(name) + '. Your current library will be replaced by this copy on every device. A copy of the current library is saved first, so you can undo this.', [{ label: 'Cancel', value: false }, { label: 'Load save', value: true, cls: 'solid' }]);
+    if (!ok) return;
+    try {
+      ghStatus('loading save…');
+      const r = await fetch(ghSaveUrl(name) + '?t=' + Date.now(), { headers: ghHead(false), cache: 'no-store' });
+      if (!r.ok) throw new Error('GitHub error ' + r.status);
+      const doc = JSON.parse(b64dec((await r.json()).content));
+      if (!doc || !Array.isArray(doc.books)) throw new Error('not a valid save');
+      await ghSnapshot('before');
+      const now = Date.now();
+      state.books = doc.books.filter(b => b && b.title).map(b => { const nb = normalise(Object.assign({}, b)); nb.u = now; return nb; });
+      if (Number.isFinite(doc.goal) && doc.goal >= 1) state.goal = doc.goal;
+      if (typeof doc.currency === 'string') state.currency = doc.currency;
+      state.seed = false; save(); renderAll(); await ghSync(); ghShowSaves(); toast('Save loaded');
+    } catch (e) { ghStatus('could not load the save (' + ((e && e.message) || 'error') + ')'); }
+  }
+  $('ghSaveCopy').onclick = async () => {
+    if (!gh || !gh.token) { $('ghStatus').textContent = 'Connect GitHub first.'; return; }
+    try { ghStatus('saving a copy…'); await ghSnapshot('save'); ghStatus('Copy saved ' + clock()); toast('Copy saved to GitHub'); ghShowSaves(); } catch (e) { ghStatus('could not save a copy (' + ((e && e.message) || 'error') + ')'); }
+  };
+  $('ghSaveList').onclick = ghShowSaves;
+  $('ghSaves').addEventListener('click', e => { const b = e.target.closest('[data-load]'); if (b) ghLoadSave(b.dataset.load); });
+  function ghOpen() {
+    $('ghRepo').value = gh ? gh.repo : ''; $('ghToken').value = gh ? gh.token : ''; $('ghPath').value = gh ? gh.path : 'data/library.json';
+    $('ghStatus').textContent = gh && gh.token ? 'Connected to ' + gh.repo : 'Not connected.'; openDlg($('ghDlg')); ghShowSaves();
+  }
+  $('ghBtn').addEventListener('click', ghOpen);
+  $('ghClose').onclick = () => closeDlg($('ghDlg'));
+  $('ghDlg').addEventListener('click', e => { if (e.target === $('ghDlg')) closeDlg($('ghDlg')); });
+  $('ghSaveBtn').onclick = () => {
+    const repo = $('ghRepo').value.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\.git$/, '').replace(/\/$/, ''), token = $('ghToken').value.trim(), path = $('ghPath').value.trim().replace(/^\/+/, '') || 'library.json';
+    if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) { $('ghStatus').textContent = 'Enter the repository as owner/name.'; return; }
+    if (!token) { $('ghStatus').textContent = 'Paste your access token.'; return; }
+    const same = gh && gh.repo === repo && gh.path === path;
+    gh = { repo, token, path, shadow: same ? gh.shadow : null }; ghStore(); ghSync();
+  };
+  $('ghNow').onclick = () => { if (!gh || !gh.token) { $('ghStatus').textContent = 'Save your repository and token first.'; return; } ghSync(true); };
+  $('ghLink').onclick = () => {
+    if (!gh || !gh.token) { $('ghStatus').textContent = 'Save your repository and token first.'; return; }
+    const link = location.origin + location.pathname + '#gh=' + btoa(unescape(encodeURIComponent(JSON.stringify({ repo: gh.repo, path: gh.path, token: gh.token }))));
+    showText(link, 'Open this link on another device and it connects to your GitHub data by itself. It contains your access token, so send it only to yourself and do not share it.');
+  };
+  $('ghOff').onclick = () => { gh = null; try { localStorage.removeItem(GHK); } catch (e) {} $('ghToken').value = ''; ghStatus('off — GitHub sync disconnected (data kept on this device)'); };
+  window.addEventListener('online', () => ghQueue());
+  setInterval(() => { if (!gh || !gh.token || document.hidden || !navigator.onLine || ghBusy) return; if (document.querySelector('dialog[open]')) return; ghSync(); }, 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) ghQueue(); });
+  async function startSync() {
+    try {
+      if (!window.claude || !claude.use) { if (gh && gh.token) { ghSync(); } else setSync('off — set up GitHub sync in the Data menu'); return; }
+      const [d, user] = await Promise.all([claude.use('db'), claude.use('user')]);
+      if (!d || !user) { setSync('off — open this page signed in to Claude to sync'); return; }
+      const userId = await user.id();
+      db = d;
+      const meta = await db.doc('settings/main').get();
+      if (!meta.exists) await migrate(userId); else applySettings(meta.data() || {});
+      ready = true;
+      const fail = e => { setSync('off (' + errText(e) + ')'); };
+      db.collection('books').onSnapshot(onBooks, fail);
+      db.collection('covers').onSnapshot(onCovers, fail);
+      db.doc('settings/main').onSnapshot(onSettings, fail);
+      setSync('connecting…');
+    } catch (e) { db = null; ready = false; setSync('off (' + errText(e) + ')'); }
+  }
+  function seed() {
+    const t = Date.now();
+    state.books = [
+      { id: uid(), title: 'The Remains of the Day', author: 'Kazuo Ishiguro', genre: 'Literary Fiction', language: 'English', status: 'Currently Reading', total: 258, current: 112, rating: 0, price: 32.9, notes: '“What is the point in worrying oneself too much about what one could or could not have done?”', added: t, finishedAt: null },
+      { id: uid(), title: 'Norwegian Wood', author: 'Haruki Murakami', genre: 'Fiction', language: 'English', status: 'Finished', total: 296, current: 296, rating: 88, price: 28, notes: 'Quiet, aching, unforgettable. Reread the last chapter twice.', added: t - 1000, finishedAt: new Date().toISOString() },
+      { id: uid(), title: 'Meditations', author: 'Marcus Aurelius', genre: 'Philosophy', language: 'English', status: 'Wishlist', total: 254, current: 0, rating: 0, price: 24.5, notes: '', added: t - 2000, finishedAt: null }
+    ];
+  }
+
+  /* ---------- helpers ---------- */
+  const pct = b => b.status === 'Finished' ? 100 : (b.total > 0 ? clamp(Math.round(b.current / b.total * 100), 0, 100) : 0);
+  const stampClass = s => 's-' + (s === 'Currently Reading' ? 'reading' : s.toLowerCase());
+  const money = n => `${esc(state.currency)} ${num(n).toFixed(2)}`;
+  function genresOf(b) { return [...new Set(String((b && b.genre) || '').split(/[,;]/).map(x => x.trim()).filter(Boolean))]; }
+  const allGenres = () => [...new Set(state.books.flatMap(genresOf))].sort((a, b) => a.localeCompare(b));
+  const genreTags = b => genresOf(b).map(g => `<span class="tag">${esc(g)}</span>`).join('');
+  const uniq = key => [...new Set(state.books.map(b => (b[key] || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const segs = (p, n) => {
+    const lit = p > 0 ? Math.max(1, Math.round(p / 100 * n)) : 0;
+    let h = '';
+    for (let i = 0; i < n; i++) { const z = i / n < .6 ? 'g' : i / n < .85 ? 'y' : 'r'; h += `<i class="${z}${i < lit ? ' on' : ''}"></i>`; }
+    return h;
+  };
+  let toastT;
+  function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400); }
+  const openDlg = d => { if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', ''); };
+  const closeDlg = d => { if (d.close) d.close(); else d.removeAttribute('open'); };
+  function normalise(b) {
+    b.total = Math.max(0, Math.round(num(b.total)));
+    b.current = Math.max(0, Math.round(num(b.current)));
+    if (b.total && b.current > b.total) b.current = b.total;
+    b.rating = clamp(Math.round(num(b.rating)), 0, 100);
+    b.edition = String(b.edition || '').trim(); b.genre = genresOf(b).join(', '); b.front = !!b.front; b.vlabel = String(b.vlabel || '').trim().slice(0, 30);
+    const vv = parseFloat(b.volume); b.volume = Number.isFinite(vv) && vv >= 0 ? vv : null;
+    b.year = yr(b.year); b.boughtYear = yr(b.boughtYear); b.startedYear = yr(b.startedYear); b.cover = b.cover ? String(b.cover) : '';
+    b.price = Math.round(Math.max(0, num(b.price)) * 100) / 100; b.hidden = !!b.hidden;
+    if (!STATUSES.includes(b.status)) b.status = 'Wishlist';
+    if (b.status === 'Finished') { if (b.total) b.current = b.total; if (!b.finishedAt) b.finishedAt = new Date().toISOString(); }
+    else b.finishedAt = null;
+    return b;
+  }
+  /* in-page choice dialog (confirm() is blocked inside artifacts) */
+  const askDlg = $('askDlg');
+  function choose(title, msg, opts) {
+    return new Promise(resolve => {
+      $('askTitle').textContent = title; $('askMsg').textContent = msg;
+      const box = $('askActions'); box.innerHTML = '';
+      let done = false;
+      const finish = v => { if (done) return; done = true; closeDlg(askDlg); resolve(v); };
+      opts.forEach(o => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'btn' + (o.cls ? ' ' + o.cls : ''); b.textContent = o.label;
+        b.onclick = () => finish(o.value); box.appendChild(b);
+      });
+      askDlg.oncancel = e => { e.preventDefault(); finish(null); };
+      openDlg(askDlg);
+    });
+  }
+
+  /* ---------- rendering ---------- */
+  function renderStats() {
+    const c = s => state.books.filter(b => b.status === s).length;
+    $('sTotal').textContent = state.books.length;
+    $('sBought').textContent = c('Bought');
+    $('sWish').textContent = c('Wishlist');
+    $('sReading').textContent = c('Currently Reading');
+    $('sFinished').textContent = c('Finished');
+    const done = state.books.filter(b => b.status === 'Finished' && (!b.finishedAt || new Date(b.finishedAt).getFullYear() === YEAR)).length;
+    const goal = Math.max(1, Math.round(num(state.goal, 12)));
+    const p = clamp(Math.round(done / goal * 100), 0, 100);
+    document.querySelectorAll('.yr').forEach(e => e.textContent = YEAR);
+    $('goalLine').textContent = `${done} of ${goal} books finished — ${p}%` + (done >= goal ? ' · Goal achieved' : '');
+    $('goalFill').style.width = p + '%';
+    $('sbLoad').textContent = `LOAD ${p}%`;
+    $('sbFeed').textContent = `FEEDERS ${c('Currently Reading')}`;
+    $('goalBar').setAttribute('aria-valuenow', p);
+    $('goalMeter').innerHTML = segs(p, 30);
+    $('goalMeter').setAttribute('aria-label', `${p}% of annual goal`);
+    if (document.activeElement !== $('goalInput')) $('goalInput').value = goal;
+    if (document.activeElement !== $('currInput')) $('currInput').value = state.currency;
+  }
+
+  function renderFilters() {
+    document.querySelectorAll('.stat[data-st]').forEach(t => t.setAttribute('aria-pressed', String(t.dataset.st === f.status)));
+    $('statusChips').innerHTML = ['All', ...STATUSES].map(s =>
+      `<button class="chip" data-status="${esc(s)}" aria-pressed="${f.status === s}">${esc(s)}<span class="n">${state.books.filter(b => !b.hidden && (s === 'All' || b.status === s)).length}</span></button>`).join('');
+    const fill = (el, label, vals, cur) => {
+      if (cur !== 'All' && !vals.includes(cur)) cur = 'All';
+      el.innerHTML = `<option value="All">All ${label}</option>` + vals.map(v => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(v)}</option>`).join('');
+      return cur;
+    };
+    f.genre = fill($('genreSel'), 'genres', allGenres(), f.genre);
+    f.lang = fill($('langSel'), 'languages', uniq('language'), f.lang);
+    $('langList').innerHTML = uniq('language').map(l => `<option value="${esc(l)}">`).join('');
+  }
+
+  function visible() {
+    const q = f.q.trim().toLowerCase();
+    const r = state.books.filter(b =>
+      (f.hidden || !b.hidden) &&
+      (f.status === 'All' || b.status === f.status) &&
+      (f.genre === 'All' || genresOf(b).includes(f.genre)) &&
+      (f.lang === 'All' || (b.language || '').trim() === f.lang) &&
+      (!q || [b.title, b.author, b.genre, b.language, b.edition, b.year, b.notes].join(' ').toLowerCase().includes(q)));
+    const cmp = {
+      new: (a, b) => b.added - a.added,
+      title: (a, b) => a.title.localeCompare(b.title),
+      author: (a, b) => (a.author || '').localeCompare(b.author || ''),
+      progress: (a, b) => pct(b) - pct(a),
+      rating: (a, b) => b.rating - a.rating,
+      year: (a, b) => (b.year || 0) - (a.year || 0)
+    }[f.sort];
+    return r.sort(cmp);
+  }
+
+  function posterHTML(g) {
+    let first, cls, sub, badge = '', hid;
+    if (g.single) {
+      first = g.single; cls = stampClass(first.status).slice(2); sub = first.author || ''; hid = first.hidden;
+    } else {
+      const all = vols(g.key); first = all.find(x => x.front && x.cover && state.covers[x.cover]) || all.find(x => x.cover && state.covers[x.cover]) || all[0];
+      cls = all.some(x => x.status === 'Currently Reading') ? 'reading' : all.every(x => x.status === 'Finished') ? 'finished' : all.some(x => x.status === 'Bought' || x.status === 'Finished') ? 'bought' : 'wishlist';
+      sub = `${all.length} volumes`; badge = `<span class="nvol">${all.length} vol</span>`; hid = all.every(x => x.hidden);
+    }
+    const src = first.cover && state.covers[first.cover];
+    const key = g.single ? g.single.id : g.key;
+    return `<button type="button" class="poster c-${cls}${hid ? ' is-hidden' : ''}" data-pk="${esc(key)}" aria-expanded="false" title="${esc(first.title)}">${src ? `<img src="${src}" alt="" loading="lazy">` : `<span class="pl" aria-hidden="true">${esc((first.title || '?').trim().charAt(0).toUpperCase())}</span>`}${badge}<span class="cap"><b>${esc(first.title)}</b><span>${esc(sub)}</span></span></button>`;
+  }
+  function cardHTML(b) {
+    const p = pct(b), q = openQuick.has(b.id), sc = stampClass(b.status);
+    const n = String(state.books.indexOf(b) + 1).padStart(3, '0');
+    const quick = q ? `
+      <div class="quick">
+        <div><label>Current page (of ${b.total || '?'})</label>
+          <div class="pagerow">
+            <button class="btn small" data-act="step" data-d="-10">−10</button>
+            <button class="btn small" data-act="step" data-d="-1">−1</button>
+            <input type="number" min="0" ${b.total ? `max="${b.total}"` : ''} value="${b.current}" data-q="page" aria-label="Current page">
+            <button class="btn small" data-act="step" data-d="1">+1</button>
+            <button class="btn small" data-act="step" data-d="10">+10</button>
+          </div></div>
+        <div><label>Status</label><select data-q="status" aria-label="Status">${STATUSES.map(s => `<option${s === b.status ? ' selected' : ''}>${s}</option>`).join('')}</select></div>
+        <div><label>Notes &amp; quotes</label><textarea data-q="notes" aria-label="Notes">${esc(b.notes)}</textarea></div>
+        <div class="row" style="justify-content:flex-end"><button class="btn small" data-act="cancelq">Cancel</button><button class="btn small solid" data-act="saveq">Save</button></div>
+      </div>` : '';
+    return `
+    <article class="card c-${sc.slice(2)}${b.hidden ? ' is-hidden' : ''}${state.layout === 'covers' ? ' expanded' : ''}" data-id="${b.id}">${state.layout === 'covers' ? collapseBtn : ''}
+      <div class="card-top">
+        ${coverImg(b) || ph(b)}<div><div class="ref"><span class="not-sub">REF-${n}</span><span class="only-sub">UNIT-01 // BAY-${n}</span></div><div class="title">${esc(b.title)}</div><div class="author">${esc(b.author || 'Unknown author')}</div></div>
+        <span class="stamp ${sc}">${esc(b.status)}</span>
+      </div>
+      <div class="tags">${b.year ? `<span class="tag">${b.year}</span>` : ''}${b.edition ? `<span class="tag">${esc(b.edition)}</span>` : ''}${genreTags(b)}${b.language ? `<span class="tag">${esc(b.language)}</span>` : ''}</div>
+      <div class="prog">
+        <div class="prog-head">
+          <span><span class="not-sub">${b.current} / ${b.total || '—'} pp.</span><span class="only-sub">CAPACITY LOAD · ${b.current}/${b.total || '—'} PP</span></span>
+          <span><span class="not-sub">${p}% read</span><span class="only-sub"><span class="lcd">${p}%</span></span></span>
+        </div>
+        <div class="bar thin"><i style="width:${p}%"></i></div>
+        <div class="meter" role="img" aria-label="${p}% read">${segs(p, 20)}</div>
+      </div>
+      <div class="facts">
+        <div class="fact"><b>Rating</b>${b.rating ? b.rating + '%' : '—'}</div>
+        <div class="fact"><b>Price</b>${b.price ? money(b.price) : '—'}</div>${extraFacts(b)}
+      </div>
+      ${b.notes ? `<div class="notes">${esc(b.notes)}</div>` : `<div class="notes empty"><span class="not-sub">No notes filed.</span><span class="only-sub">// NO LOG ENTRIES</span></div>`}
+      ${quick}
+      <div class="actions">
+        <button class="btn small" data-act="quick">${q ? 'Close' : 'Quick update'}</button>
+        <button class="btn small" data-act="edit">Edit</button>
+        <button class="btn small" data-act="addvols">Add volumes</button>
+        <button class="btn small" data-act="hide">${b.hidden ? 'Unhide' : 'Hide'}</button>
+        <button class="btn small danger" data-act="del">Delete</button>
+      </div>
+    </article>`;
+  }
+
+  /* ---------- series: one title, many volumes ---------- */
+  const isVol = b => b.volume !== null && b.volume !== undefined && b.volume !== '' && Number.isFinite(Number(b.volume));
+  const skey = b => (b.title || '').trim().toLowerCase() + '|' + (b.edition || '').trim().toLowerCase();
+  const volLabel = v => String(Number(v));
+  const volName = b => b.vlabel || (Number(b.volume) === 0 ? 'Prologue' : Number(b.volume) === 0.5 ? 'Special prologue' : '');
+  const yr = v => { const n = parseInt(v, 10); return Number.isFinite(n) && n >= 1000 && n <= 2200 ? n : null; };
+  const finYear = b => (b.status === 'Finished' && b.finishedAt) ? new Date(b.finishedAt).getFullYear() : null;
+  const collapseBtn = '<div class="collapse-row"><button type="button" class="collapse-btn" data-act="collapse" aria-label="Collapse entry">▴ Collapse</button></div>';
+  const ph = b => `<div class="cover ph" aria-hidden="true">${esc(((b && b.title) || '?').trim().charAt(0).toUpperCase())}</div>`;
+  const coverImg = b => (b && b.cover && state.covers[b.cover]) ? `<img class="cover" src="${state.covers[b.cover]}" alt="Cover of ${esc(b.title)}">` : '';
+  function extraFacts(b) {
+    const fy = finYear(b);
+    const tl = (b.boughtYear || b.startedYear || fy) ? `<div class="fact wide"><b>Bought · Started · Finished</b>${b.boughtYear || '—'} · ${b.startedYear || '—'} · ${fy || '—'}</div>` : '';
+    return (b.year ? `<div class="fact"><b>Released</b>${b.year}</div>` : '') + tl;
+  }
+  function pruneCovers() {
+    const used = new Set(state.books.map(b => b.cover).filter(Boolean));
+    Object.keys(state.covers || {}).forEach(k => { if (!used.has(k)) delete state.covers[k]; });
+  }
+  function stampYears(b, prev) {
+    if (b.status === prev) return;
+    if (b.status === 'Bought' && !b.boughtYear) b.boughtYear = YEAR;
+    if (b.status === 'Currently Reading' && !b.startedYear) b.startedYear = YEAR;
+  }
+  function applyFin(b, raw) {
+    const fy = yr(raw);
+    if (b.status === 'Finished' && fy && finYear(b) !== fy) b.finishedAt = fy === YEAR ? new Date().toISOString() : new Date(fy, 6, 1).toISOString();
+  }
+  const vols = key => state.books.filter(b => isVol(b) && skey(b) === key).sort((a, b) => a.volume - b.volume);
+  const find = id => state.books.find(x => x.id === id);
+  const statusOptions = cur => STATUSES.map(s => `<option${s === cur ? ' selected' : ''}>${s}</option>`).join('');
+
+  function groups(items) {
+    const active = !!(f.q.trim() || f.status !== 'All' || f.genre !== 'All' || f.lang !== 'All');
+    const out = [], seen = new Map();
+    items.forEach(b => {
+      if (!isVol(b)) { out.push({ single: b }); return; }
+      const k = skey(b);
+      if (!seen.has(k)) { const g = { key: k, match: new Set(), active }; seen.set(k, g); out.push(g); }
+      seen.get(k).match.add(b.id);
+    });
+    return out;
+  }
+
+  function volPanel(b) {
+    return `<div class="quick" data-id="${b.id}">
+      <div class="vhead">Volume ${volLabel(b.volume)}${volName(b) ? ' · ' + esc(volName(b)) : ''} · ${esc(b.status)}</div>
+      <div class="row" style="align-items:center;gap:10px">${coverImg(b)}${b.cover && state.covers[b.cover] ? `<button type="button" class="btn small${b.front ? ' solid' : ''}" data-act="front" aria-pressed="${!!b.front}">${b.front ? '★ Series cover' : 'Use as series cover'}</button>` : '<span class="note">No cover on this volume. Use Edit to add one, then choose it as the series cover.</span>'}</div>
+      <div><label>Current page (of ${b.total || '?'})</label>
+        <div class="pagerow">
+          <button type="button" class="btn small" data-act="step" data-d="-10">−10</button>
+          <button type="button" class="btn small" data-act="step" data-d="-1">−1</button>
+          <input type="number" min="0" ${b.total ? `max="${b.total}"` : ''} value="${b.current}" data-q="page" aria-label="Current page">
+          <button type="button" class="btn small" data-act="step" data-d="1">+1</button>
+          <button type="button" class="btn small" data-act="step" data-d="10">+10</button>
+        </div></div>
+      <div><label>Status</label><select data-q="status" aria-label="Status">${statusOptions(b.status)}</select></div>
+      <div><label>Notes &amp; quotes</label><textarea data-q="notes" aria-label="Notes">${esc(b.notes)}</textarea></div>
+      <div class="row" style="justify-content:space-between"><span class="row"><button type="button" class="btn small" data-act="edit">Edit</button><button type="button" class="btn small danger" data-act="del">Delete</button></span><span class="row"><button type="button" class="btn small" data-act="cancelq">Close</button><button type="button" class="btn small solid" data-act="saveq">Save</button></span></div>
+    </div>`;
+  }
+
+  function bulkPanel(all) {
+    const lo = all[0].volume, hi = all[all.length - 1].volume;
+    return `<div class="quick" data-bulk="1">
+      <div class="vhead">Bulk update</div>
+      <div class="rating-row"><input type="number" step="any" min="0" data-b="from" value="${lo}" aria-label="From volume"><span class="note">to</span><input type="number" step="any" min="0" data-b="to" value="${hi}" aria-label="To volume"></div>
+      <div><label>Set status to</label><select data-b="status" aria-label="New status">${STATUSES.map(s => `<option${s === 'Finished' ? ' selected' : ''}>${s}</option>`).join('')}</select></div>
+      <div class="row" style="justify-content:flex-end"><button type="button" class="btn small" data-act="s-bulk-close">Cancel</button><button type="button" class="btn small solid" data-act="s-bulk-apply">Apply</button></div>
+    </div>`;
+  }
+
+  const tilesHTML = (all, g) => all.map(b => `<button type="button" class="vol ${stampClass(b.status)}${g.active && !g.match.has(b.id) ? ' dim' : ''}${b.id === openVol ? ' open' : ''}" data-vol="${b.id}" title="Volume ${volLabel(b.volume)}${volName(b) ? ' (' + esc(volName(b)) + ')' : ''} · ${esc(b.status)}" aria-label="Volume ${volLabel(b.volume)}${volName(b) ? ', ' + esc(volName(b)) : ''}, ${esc(b.status)}" aria-pressed="${b.id === openVol}">${volLabel(b.volume)}</button>`).join('');
+  function seriesHTML(g, others, fk) {
+    const all = vols(g.key); if (!all.length) return '';
+    const n = all.length, first = all[0];
+    const fin = all.filter(b => b.status === 'Finished').length;
+    const rd = all.filter(b => b.status === 'Currently Reading').length;
+    const owned = all.filter(b => b.status !== 'Wishlist');
+    const spent = owned.reduce((s, b) => s + b.price, 0);
+    const p = Math.round(all.reduce((s, b) => s + pct(b), 0) / n);
+    const rated = all.filter(b => b.rating > 0);
+    const avg = rated.length ? Math.round(rated.reduce((s, b) => s + b.rating, 0) / rated.length) : 0;
+    const dom = rd ? 'reading' : fin === n ? 'finished' : owned.length ? 'bought' : 'wishlist';
+    const open = all.find(b => b.id === openVol);
+    const tiles = tilesHTML(all, g);
+    return `
+    <article class="card series c-${dom}${all.every(x => x.hidden) ? ' is-hidden' : ''}${state.layout === 'covers' ? ' expanded' : ''}" data-key="${esc(g.key)}"${fk ? ` data-fk="${esc(fk)}"` : ''}>${state.layout === 'covers' ? collapseBtn : ''}
+      <div class="card-top">
+        ${coverImg(all.find(x => x.front && x.cover && state.covers[x.cover]) || all.find(x => x.cover && state.covers[x.cover]) || first) || ph(first)}<div><div class="ref"><span class="not-sub">SERIES · ${n} VOLUMES</span><span class="only-sub">UNIT-01 // SERIES · ${n} VOL</span></div><div class="title">${esc(first.title)}</div><div class="author">${esc(first.author || 'Unknown author')}</div></div>
+        <span class="stamp s-series">${fin}/${n} read</span>
+      </div>
+      <div class="tags">${first.year ? `<span class="tag">${first.year}</span>` : ''}${first.edition ? `<span class="tag">${esc(first.edition)}</span>` : ''}${genreTags(first)}${first.language ? `<span class="tag">${esc(first.language)}</span>` : ''}</div>
+      <div class="prog">
+        <div class="prog-head">
+          <span><span class="not-sub">${fin} of ${n} volumes read</span><span class="only-sub">CAPACITY LOAD · ${fin}/${n} VOL</span></span>
+          <span><span class="not-sub">${p}% read</span><span class="only-sub"><span class="lcd">${p}%</span></span></span>
+        </div>
+        <div class="bar thin"><i style="width:${p}%"></i></div>
+        <div class="meter" role="img" aria-label="${p}% read">${segs(p, 20)}</div>
+      </div>
+      <div class="vols">${tiles}</div>
+      <div class="legend"><span class="s-wishlist">Wishlist</span><span class="s-bought">Bought</span><span class="s-reading">Reading</span><span class="s-finished">Finished</span></div>
+      ${others ? othersHTML(others) : ''}
+      <div class="facts">
+        <div class="fact"><b>Owned</b>${owned.length} / ${n}</div>
+        <div class="fact"><b>Spent</b>${spent ? money(spent) : '—'}</div>
+        <div class="fact"><b>Avg rating</b>${avg ? avg + '%' : '—'}</div>
+        <div class="fact"><b>Reading now</b>${rd}</div>
+      </div>
+      ${open ? volPanel(open) : ''}${openBulk === g.key ? bulkPanel(all) : ''}
+      <div class="actions">
+        <button type="button" class="btn small" data-act="s-bulk">Bulk update</button>
+        <button type="button" class="btn small" data-act="s-add">Add volumes</button>
+        <button type="button" class="btn small" data-act="s-hide">${all.every(x => x.hidden) ? 'Unhide series' : 'Hide series'}</button>
+        <button type="button" class="btn small danger" data-act="s-del">Delete series</button>
+      </div>
+    </article>`;
+  }
+
+  /* merge groups that share a title (different editions) into one franchise */
+  const partId = g => g.single ? 'e:' + g.single.id : 's:' + g.key;
+  const partLabel = g => { const b = g.single || vols(g.key)[0]; return (b && b.edition) || (g.single ? 'Single' : 'Volumes'); };
+  function franchise(gs) {
+    const by = new Map();
+    gs.forEach(g => { const b = g.single || vols(g.key)[0]; if (!b) return; const t = (b.title || '').trim().toLowerCase(); if (!by.has(t)) by.set(t, []); by.get(t).push(g); });
+    const out = [], done = new Set();
+    gs.forEach(g => {
+      const b = g.single || vols(g.key)[0]; const t = b ? (b.title || '').trim().toLowerCase() : '';
+      const parts = by.get(t) || [g];
+      if (parts.length < 2 || !parts.some(x => !x.single)) { out.push(g); return; }
+      if (done.has(t)) return; done.add(t);
+      out.push({ fr: 't:' + t, parts: parts.slice().sort((x, y) => (!!x.single - !!y.single) || partEntries(y) - partEntries(x)), title: b.title });
+    });
+    return out;
+  }
+  const partEntries = g => g.single ? 1 : vols(g.key).length;
+  function othersHTML(parts) {
+    const blocks = parts.map(p => {
+      const lab = esc(partLabel(p));
+      if (p.single) {
+        const b = p.single;
+        return `<div class="fmt-block" data-id="${b.id}"><div class="fmt-head"><b>${lab}</b><span>${esc(b.status)} · ${pct(b)}%</span></div><div class="bar thin"><i style="width:${pct(b)}%"></i></div><div class="actions"><button type="button" class="btn small" data-act="edit">Edit</button><button type="button" class="btn small" data-act="addvols">Add volumes</button><button type="button" class="btn small" data-act="hide">${b.hidden ? 'Unhide' : 'Hide'}</button><button type="button" class="btn small danger" data-act="del">Delete</button></div></div>`;
+      }
+      const all = vols(p.key), fin = all.filter(x => x.status === 'Finished').length, open = all.find(x => x.id === openVol);
+      return `<div class="fmt-block" data-key="${esc(p.key)}"><div class="fmt-head"><b>${lab}</b><span>${fin}/${all.length} read</span></div><div class="vols">${tilesHTML(all, p)}</div>${open ? volPanel(open) : ''}<div class="actions"><button type="button" class="btn small" data-act="s-add">Add volumes</button><button type="button" class="btn small" data-act="s-hide">${all.every(x => x.hidden) ? 'Unhide' : 'Hide'}</button><button type="button" class="btn small danger" data-act="s-del">Delete format</button></div></div>`;
+    }).join('');
+    return `<div class="formats"><div class="fmt-title">Other formats · ${parts.length}</div>${blocks}</div>`;
+  }
+  function franchiseHTML(g) { const main = g.parts[0]; return seriesHTML(main, g.parts.slice(1), g.fr); }
+  function franchisePoster(g) {
+    const all = g.parts.flatMap(x => x.single ? [x.single] : vols(x.key));
+    const first = all.find(x => x.front && x.cover && state.covers[x.cover]) || all.find(x => x.cover && state.covers[x.cover]) || all[0];
+    const cls = all.some(x => x.status === 'Currently Reading') ? 'reading' : all.every(x => x.status === 'Finished') ? 'finished' : all.some(x => x.status === 'Bought' || x.status === 'Finished') ? 'bought' : 'wishlist';
+    const src = first.cover && state.covers[first.cover];
+    return `<button type="button" class="poster c-${cls}${all.every(x => x.hidden) ? ' is-hidden' : ''}" data-pk="${esc(g.fr)}" aria-expanded="false" title="${esc(g.title)}">${src ? `<img src="${src}" alt="" loading="lazy">` : `<span class="pl" aria-hidden="true">${esc((g.title || '?').trim().charAt(0).toUpperCase())}</span>`}<span class="nvol">${g.parts.length} fmt</span><span class="cap"><b>${esc(g.title)}</b><span>${all.length} entries</span></span></button>`;
+  }
+  function renderList() {
+    const items = visible();
+    const gs = franchise(groups(items));
+    const nh = state.books.filter(b => b.hidden).length, hb = $('hiddenBtn');
+    hb.hidden = !nh; hb.textContent = (f.hidden ? 'Hide hidden' : 'Show hidden') + ' (' + nh + ')';
+    $('count').textContent = `${items.length} of ${state.books.length} entries`;
+    $('list').className = 'grid lay-' + state.layout;
+    document.querySelectorAll('#layoutSeg button').forEach(bt => bt.setAttribute('aria-pressed', String(bt.dataset.lay === state.layout)));
+    const cv = state.layout === 'covers';
+    const ca = $('collapseAll'); ca.hidden = !(cv && openPoster.size); ca.textContent = 'Collapse all (' + openPoster.size + ')';
+    $('list').innerHTML = gs.length ? gs.map(g => g.fr ? ((cv && !openPoster.has(g.fr)) ? franchisePoster(g) : franchiseHTML(g)) : (cv && !openPoster.has(g.single ? g.single.id : g.key)) ? posterHTML(g) : (g.single ? cardHTML(g.single) : seriesHTML(g))).join('') :
+      `<div class="empty-state">${state.books.length ? 'No entries match these filters.' : 'The archive is empty. File your first book.'}</div>`;
+  }
+  /* ---------- dashboard ---------- */
+  const NF = n => Number(n).toLocaleString();
+  function polar(cx, cy, r, deg) { const a = deg * Math.PI / 180; return [cx + r * Math.cos(a), cy - r * Math.sin(a)]; }
+  function arcPath(cx, cy, r, d0, d1) {
+    const [x0, y0] = polar(cx, cy, r, d0), [x1, y1] = polar(cx, cy, r, d1);
+    return `M${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+  }
+  function gaugeSVG(p) {
+    const cx = 110, cy = 108, r = 84;
+    let t = `<svg class="gauge" viewBox="0 0 220 130" role="img" aria-label="Annual goal ${p}% complete">`;
+    [['g', 180, 72], ['y', 72, 27], ['r', 27, 0]].forEach(z => { t += `<path class="gz ${z[0]}" d="${arcPath(cx, cy, r, z[1], z[2])}"/>`; });
+    for (let i = 0; i <= 10; i++) {
+      const a = 180 - i * 18, [x0, y0] = polar(cx, cy, r + 9, a), [x1, y1] = polar(cx, cy, r + 15, a);
+      t += `<line class="gt" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`;
+    }
+    const [nx, ny] = polar(cx, cy, r - 12, 180 - p * 1.8);
+    t += `<line class="gneedle" x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}"/><circle class="ghub" cx="${cx}" cy="${cy}" r="6"/>`;
+    return t + `<text class="gsm" x="22" y="124">0</text><text class="gsm" x="198" y="124">100</text><text class="gtxt" x="110" y="128">${p}%</text></svg>`;
+  }
+  function monthSVG() {
+    const counts = Array(12).fill(0);
+    state.books.forEach(b => { if (b.status === 'Finished' && b.finishedAt) { const d = new Date(b.finishedAt); if (d.getFullYear() === YEAR) counts[d.getMonth()]++; } });
+    const mx = Math.max(1, ...counts), step = Math.max(1, Math.ceil(mx / 4)), top = Math.ceil(mx / step) * step;
+    const L = 26, R = 352, T = 14, B = 150, W = (R - L) / 12;
+    let t = `<svg class="mchart" viewBox="0 0 360 176" role="img" aria-label="Books finished per month in ${YEAR}"><defs><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hp" x1="0" y1="0" x2="0" y2="4"/></pattern></defs>`;
+    for (let v = 0; v <= top; v += step) {
+      const y = B - (v / top) * (B - T);
+      t += `<line class="cg" x1="${L}" x2="${R}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/><text class="ct" x="${L - 5}" y="${(y + 3).toFixed(1)}" text-anchor="end">${v}</text>`;
+    }
+    counts.forEach((c, i) => {
+      const h = c / top * (B - T), x = L + i * W + W * .2;
+      t += `<rect class="mbar" x="${x.toFixed(1)}" y="${(B - h).toFixed(1)}" width="${(W * .6).toFixed(1)}" height="${h.toFixed(1)}"/>`;
+      if (c) t += `<text class="cv" x="${(x + W * .3).toFixed(1)}" y="${(B - h - 4).toFixed(1)}">${c}</text>`;
+      t += `<text class="ct" x="${(L + i * W + W / 2).toFixed(1)}" y="168" text-anchor="middle">${'JFMAMJJASOND'[i]}</text>`;
+    });
+    return t + '</svg>';
+  }
+  function hrows(rows, empty) {
+    if (!rows.length || rows.every(r => !r.value && r.p === undefined)) return `<div class="note">${empty || 'No data yet.'}</div>`;
+    const max = Math.max(1, ...rows.map(r => r.value));
+    return rows.map(r => {
+      const p = r.p !== undefined ? r.p : Math.round(r.value / max * 100);
+      return `<div class="hrow"><div class="hl"><span>${esc(r.label)}</span><i class="lead"></i><span>${esc(r.text !== undefined ? r.text : r.value)}</span></div><div class="bar thin"><i style="width:${p}%"></i></div><div class="meter" role="img" aria-label="${esc(r.label)}">${segs(p, 20)}</div></div>`;
+    }).join('');
+  }
+  function tally(key) {
+    const m = new Map();
+    state.books.forEach(b => { const ks = key === 'genre' ? (genresOf(b).length ? genresOf(b) : ['Unspecified']) : [(b[key] || '').trim() || 'Unspecified']; ks.forEach(k => m.set(k, (m.get(k) || 0) + 1)); });
+    return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 6).map(([label, value]) => ({ label, value }));
+  }
+  function renderDash() {
+    const B = state.books;
+    const owned = B.filter(b => b.status !== 'Wishlist');
+    const titles = new Set(B.map(b => isVol(b) ? 'k:' + skey(b) : 'i:' + b.id)).size;
+    const pagesRead = B.reduce((s, b) => s + (b.total ? Math.min(b.current, b.total) : b.current), 0);
+    const spent = owned.reduce((s, b) => s + b.price, 0);
+    const wish = B.filter(b => b.status === 'Wishlist').reduce((s, b) => s + b.price, 0);
+    const rated = B.filter(b => b.rating > 0);
+    const avg = rated.length ? Math.round(rated.reduce((s, b) => s + b.rating, 0) / rated.length) + '%' : '—';
+    const done = B.filter(b => b.status === 'Finished' && (!b.finishedAt || new Date(b.finishedAt).getFullYear() === YEAR)).length;
+    const goal = Math.max(1, Math.round(num(state.goal, 12)));
+    const gp = clamp(Math.round(done / goal * 100), 0, 100);
+    const kpi = (l, v) => `<div class="kpi"><div class="lbl">${l}</div><div class="num">${v}</div></div>`;
+    const stRows = STATUSES.map(s => { const c = B.filter(b => b.status === s).length; return { label: s, value: c, text: `${c} · ${B.length ? Math.round(c / B.length * 100) : 0}%` }; });
+    const rtRows = [['Unrated', 0, 0], ['1–39%', 1, 39], ['40–59%', 40, 59], ['60–79%', 60, 79], ['80–100%', 80, 100]]
+      .map(([label, lo, hi]) => ({ label, value: B.filter(b => b.rating >= lo && b.rating <= hi).length }));
+    const sm = new Map();
+    B.filter(isVol).forEach(b => { const k = skey(b); if (!sm.has(k)) sm.set(k, []); sm.get(k).push(b); });
+    const serRows = [...sm.values()].map(a => {
+      const n = a.length, fin = a.filter(b => b.status === 'Finished').length, p = Math.round(a.reduce((s, b) => s + pct(b), 0) / n);
+      return { label: a[0].title + (a[0].edition ? ' · ' + a[0].edition : ''), value: fin, p, text: `${fin}/${n} vols · ${p}%` };
+    }).sort((x, y) => y.p - x.p);
+    const nowRows = B.filter(b => b.status === 'Currently Reading').map(b => {
+      const p = pct(b);
+      return { label: b.title + (isVol(b) ? ' · Vol. ' + volLabel(b.volume) : ''), value: p, p, text: `${b.current}/${b.total || '—'} pp · ${p}%` };
+    });
+    const dm = new Map();
+    B.forEach(b => { if (b.year) { const d = Math.floor(b.year / 10) * 10; dm.set(d, (dm.get(d) || 0) + 1); } });
+    const decRows = [...dm.entries()].sort((a, b) => b[0] - a[0]).slice(0, 8).map(([d, c]) => ({ label: d + 's', value: c }));
+    const ym = new Map();
+    const bump = (y, k) => { if (!y) return; if (!ym.has(y)) ym.set(y, { b: 0, s: 0, f: 0 }); ym.get(y)[k]++; };
+    B.forEach(b => { bump(b.boughtYear, 'b'); bump(b.startedYear, 's'); bump(finYear(b), 'f'); });
+    const yrRows = [...ym.entries()].sort((a, b) => b[0] - a[0]).slice(0, 8).map(([y, v]) => ({ label: String(y), value: v.b + v.s + v.f, text: `bought ${v.b} · started ${v.s} · finished ${v.f}` }));
+    $('dash').innerHTML = `
+      <div class="kpis">${kpi('Titles', NF(titles))}${kpi('Books &amp; volumes', NF(B.length))}${kpi('Pages read', NF(pagesRead))}${kpi('Spent', money(spent))}${kpi('Wishlist cost', money(wish))}${kpi('Avg rating', avg)}</div>
+      <div class="dash-grid">
+        <section class="card panel c-finished"><h3><span class="exh not-sub">Exhibit A</span>Annual goal</h3>${gaugeSVG(gp)}<div class="note">${done} of ${goal} books finished in ${YEAR}</div></section>
+        <section class="card panel"><h3><span class="exh not-sub">Exhibit B</span>Status breakdown</h3><div class="hlist">${hrows(stRows)}</div></section>
+        <section class="card panel c-finished"><h3><span class="exh not-sub">Exhibit C</span>Finished per month · ${YEAR}</h3>${monthSVG()}</section>
+        <section class="card panel"><h3><span class="exh not-sub">Exhibit D</span>Top genres</h3><div class="hlist">${hrows(tally('genre'))}</div></section>
+        <section class="card panel"><h3><span class="exh not-sub">Exhibit E</span>Languages</h3><div class="hlist">${hrows(tally('language'))}</div></section>
+        <section class="card panel"><h3><span class="exh not-sub">Exhibit F</span>Ratings</h3><div class="hlist">${hrows(rtRows)}</div></section>
+        <section class="card panel c-bought"><h3><span class="exh not-sub">Exhibit G</span>Series progress</h3><div class="hlist">${hrows(serRows, 'No series yet. Add a title with several volumes.')}</div></section>
+        <section class="card panel c-reading"><h3><span class="exh not-sub">Exhibit H</span>Reading now</h3><div class="hlist">${hrows(nowRows, 'Nothing in progress.')}</div></section>
+        <section class="card panel"><h3><span class="exh not-sub">Exhibit I</span>Released by decade</h3><div class="hlist">${hrows(decRows, 'Add a release year to see decades.')}</div></section>
+        <section class="card panel c-bought"><h3><span class="exh not-sub">Exhibit J</span>Activity by year</h3><div class="hlist">${hrows(yrRows, 'Add bought, started or finished years.')}</div></section>
+      </div>`;
+  }
+  function applyView() {
+    const dash = state.view === 'dashboard';
+    $('viewLibrary').hidden = dash; $('viewDash').hidden = !dash;
+    $('tabLib').setAttribute('aria-pressed', String(!dash)); $('tabDash').setAttribute('aria-pressed', String(dash));
+    if (dash) renderDash();
+  }
+  document.querySelector('.tabs').addEventListener('click', e => {
+    const b = e.target.closest('[data-view]'); if (!b) return;
+    state.view = b.dataset.view; save(); applyView();
+  });
+  function renderAll() { renderStats(); renderFilters(); renderList(); if (state.view === 'dashboard') renderDash(); }
+
+  /* ---------- modes ---------- */
+  function applyMode() {
+    const TT = { light: 'The Parchment', dark: 'The Anthology' };
+    const SB = { light: 'Daylight Shift', dark: 'Blackout' };
+    const sub = state.theme === 'sub';
+    const root = document.documentElement;
+    root.setAttribute('data-mode', sub ? 'substation' : (state.ttpd === 'dark' ? 'anthology' : 'parchment'));
+    if (sub) root.setAttribute('data-tone', state.sub); else root.removeAttribute('data-tone');
+    const paint = (btn, active, label, names, tone) => {
+      const other = tone === 'dark' ? 'light' : 'dark';
+      btn.setAttribute('aria-pressed', String(active));
+      btn.querySelector('.b-mode').textContent = active ? names[tone] : '';
+      const tip = active ? `Switch to ${names[other]}` : `Switch to the ${label} theme`;
+      btn.title = tip;
+      btn.setAttribute('aria-label', active ? `${label} theme, ${names[tone]}. ${tip}` : tip);
+    };
+    paint($('ttpdBtn'), !sub, 'TTPD', TT, state.ttpd);
+    paint($('subBtn'), sub, 'Substation Tower', SB, state.sub);
+  }
+  $('ttpdBtn').onclick = () => { if (state.theme === 'ttpd') state.ttpd = state.ttpd === 'dark' ? 'light' : 'dark'; else state.theme = 'ttpd'; save(); applyMode(); };
+  $('subBtn').onclick = () => { if (state.theme === 'sub') state.sub = state.sub === 'dark' ? 'light' : 'dark'; else state.theme = 'sub'; save(); applyMode(); };
+
+  /* ---------- entry dialog ---------- */
+  const dlg = $('dlg');
+  const EMPTY = { title: '', author: '', genre: '', language: '', edition: '', volume: null, status: 'Wishlist', total: 0, current: 0, rating: 0, price: 0, notes: '' };
+  function syncMulti() { const m = $('fMulti').checked; $('volSingle').hidden = m; $('volRange').hidden = !m; $('extraWrap').hidden = !m; $('vlabelWrap').hidden = m; }
+  function paintGenreChips() {
+    const cur = new Set(genresOf({ genre: $('fGenre').value }));
+    $('genreChips').innerHTML = allGenres().slice(0, 24).map(g => `<button type="button" class="chip" data-g="${esc(g)}" aria-pressed="${cur.has(g)}">${esc(g)}</button>`).join('');
+  }
+  $('fGenre').addEventListener('input', paintGenreChips);
+  $('genreChips').addEventListener('click', e => {
+    const bt = e.target.closest('[data-g]'); if (!bt) return;
+    const list = genresOf({ genre: $('fGenre').value }), g = bt.dataset.g, i = list.indexOf(g);
+    if (i >= 0) list.splice(i, 1); else list.push(g);
+    $('fGenre').value = list.join(', '); paintGenreChips();
+  });
+  let formCover = { id: '', data: null };
+  function paintCover() {
+    const src = formCover.data || (formCover.id && state.covers[formCover.id]) || '';
+    $('coverPrev').style.backgroundImage = src ? `url("${src}")` : 'none';
+  }
+  function coverId() {
+    if (formCover.data) { const id = 'c' + uid(); state.covers[id] = formCover.data; return id; }
+    return formCover.id || '';
+  }
+  function shrink(file) {
+    return new Promise((resolve, reject) => {
+      const rd = new FileReader();
+      rd.onerror = reject;
+      rd.onload = () => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          const sc = Math.min(1, 280 / Math.max(img.width, img.height));
+          const c = document.createElement('canvas');
+          c.width = Math.max(1, Math.round(img.width * sc)); c.height = Math.max(1, Math.round(img.height * sc));
+          const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+          resolve(c.toDataURL('image/jpeg', .75));
+        };
+        img.src = rd.result;
+      };
+      rd.readAsDataURL(file);
+    });
+  }
+  $('fCover').addEventListener('change', async e => {
+    const file = e.target.files[0]; if (!file) return;
+    try { formCover = { id: '', data: await shrink(file) }; paintCover(); } catch (err) { toast('That image could not be read'); }
+    e.target.value = '';
+  });
+  $('coverClear').onclick = () => { formCover = { id: '', data: null }; $('fCover').value = ''; paintCover(); };
+  let addBaseId = null;
+  function openForm(id, preset) {
+    editingId = id || null; addBaseId = (preset && preset.baseId) || null;
+    const b = id ? find(id) : Object.assign({}, EMPTY, preset || {});
+    $('dlgTitle').textContent = id ? 'Edit Entry' : (preset && preset.multi ? 'Add Volumes' : 'New Entry');
+    $('fTitle').value = b.title; $('fAuthor').value = b.author; $('fGenre').value = b.genre; $('fLang').value = b.language;
+    $('fEdition').value = b.edition || ''; $('fVolume').value = isVol(b) ? b.volume : ''; $('fVLabel').value = b.vlabel || ''; $('fExtra').value = ''; paintGenreChips();
+    $('fStatus').value = b.status; $('fTotal').value = b.total; $('fCur').value = b.current;
+    $('fPrice').value = b.price; $('fRating').value = b.rating; $('fRatingNum').value = b.rating; $('fNotes').value = b.notes;
+    $('fYear').value = b.year || ''; $('fBought').value = b.boughtYear || ''; $('fStarted').value = b.startedYear || ''; $('fFinished').value = finYear(b) || '';
+    formCover = { id: b.cover || '', data: null }; paintCover();
+    $('multiWrap').hidden = !!id; $('delEntry').hidden = !id;
+    $('fMulti').checked = !!(preset && preset.multi);
+    $('fFrom').value = preset && preset.from != null ? preset.from : 1;
+    $('fTo').value = preset && preset.to != null ? preset.to : 10;
+    $('edList').innerHTML = uniq('edition').map(v => `<option value="${esc(v)}">`).join('');
+    syncMulti();
+    openDlg(dlg);
+    $('fTitle').focus();
+  }
+  const closeForm = () => closeDlg(dlg);
+  $('fMulti').addEventListener('change', syncMulti);
+  $('fRating').addEventListener('input', e => $('fRatingNum').value = e.target.value);
+  $('fRatingNum').addEventListener('input', e => $('fRating').value = clamp(num(e.target.value), 0, 100));
+  $('closeDlg').onclick = $('cancelDlg').onclick = closeForm;
+  dlg.addEventListener('click', e => { if (e.target === dlg) closeForm(); });
+  $('bookForm').addEventListener('submit', e => {
+    e.preventDefault();
+    try { saveForm(); } catch (err) { toast('Save failed: ' + ((err && err.message) || err)); }
+  });
+  function saveForm() {
+    if (editingId && !find(editingId)) { toast('That entry no longer exists'); closeForm(); renderAll(); return; }
+    const data = {
+      title: $('fTitle').value.trim(), author: $('fAuthor').value.trim(), genre: $('fGenre').value.trim(), language: $('fLang').value.trim(),
+      edition: $('fEdition').value.trim(), status: $('fStatus').value, total: $('fTotal').value, current: $('fCur').value,
+      rating: $('fRatingNum').value, price: $('fPrice').value, notes: $('fNotes').value,
+      year: $('fYear').value, boughtYear: $('fBought').value, startedYear: $('fStarted').value, vlabel: $('fVLabel').value.trim()
+    };
+    if (!data.title) { toast('Please enter a title'); $('fTitle').focus(); return; }
+    const badYr = [['Year released', data.year], ['Year bought', data.boughtYear], ['Year started', data.startedYear], ['Year finished', $('fFinished').value]].find(([, v]) => String(v).trim() !== '' && !yr(v));
+    if (badYr) { toast(badYr[0] + ' must be between 1000 and 2200'); return; }
+    const finRaw = $('fFinished').value;
+    if (editingId) {
+      data.cover = coverId();
+      const b = find(editingId), prev = b.status;
+      Object.assign(b, data, { volume: $('fVolume').value });
+      normalise(b); stampYears(b, prev); applyFin(b, finRaw);
+      toast('Entry updated');
+    } else if ($('fMulti').checked) {
+      const fr = $('fFrom').value.trim(), tt = $('fTo').value.trim();
+      const extras = [];
+      for (const tok of $('fExtra').value.split(/[,;\n]/)) {
+        const m = tok.trim().match(/^(\d+(?:\.\d+)?)\s*(?:[=:]\s*(.*))?$/);
+        if (tok.trim() && !m) { toast('Extra volumes: use numbers like 0, 0.5 or 0=Prologue'); return; }
+        if (m) extras.push({ v: parseFloat(m[1]), label: (m[2] || '').trim().slice(0, 30) });
+      }
+      let from = NaN, to = NaN;
+      if (fr !== '' || tt !== '' || !extras.length) {
+        from = Math.floor(num(fr, NaN)); to = Math.floor(num(tt, NaN));
+        if (!Number.isFinite(from) || !Number.isFinite(to) || from < 0 || to < from) { toast('Enter a valid volume range, or clear it and list extra volumes'); return; }
+        if (to - from + 1 > 500) { toast('Add up to 500 volumes at a time'); return; }
+      }
+      data.cover = coverId(); data.vlabel = '';
+      if (addBaseId) { const bb = find(addBaseId); if (bb && !isVol(bb)) { bb.volume = 1; normalise(bb); } }
+      addBaseId = null;
+      const have = new Set(vols(data.title.toLowerCase() + '|' + data.edition.toLowerCase()).map(b => Number(b.volume)));
+      const t0 = Date.now(); let made = 0;
+      const wanted = [];
+      if (Number.isFinite(from)) for (let v = from; v <= to; v++) wanted.push({ v, label: '' });
+      extras.forEach(x => { if (!wanted.some(w => w.v === x.v)) wanted.push(x); });
+      wanted.forEach(({ v, label }) => {
+        if (have.has(v)) return;
+        const nb = normalise(Object.assign({ id: uid(), added: t0 + Math.round(v * 2), finishedAt: null }, data, { volume: v, vlabel: label, current: data.status === 'Finished' ? data.total : 0 }));
+        stampYears(nb, null); applyFin(nb, finRaw);
+        state.books.push(nb);
+        made++;
+      });
+      toast(made ? `${made} volume${made === 1 ? '' : 's'} filed` : 'Those volumes already exist');
+    } else {
+      data.cover = coverId();
+      const nb = normalise(Object.assign({ id: uid(), added: Date.now(), finishedAt: null }, data, { volume: $('fVolume').value }));
+      stampYears(nb, null); applyFin(nb, finRaw);
+      state.books.push(nb);
+      toast('Entry filed');
+    }
+    save(); closeForm(); renderAll();
+  }
+
+  /* ---------- card actions ---------- */
+  function saveQuick(scope, b) {
+    const page = Math.round(num(scope.querySelector('[data-q="page"]').value));
+    let status = scope.querySelector('[data-q="status"]').value;
+    const notes = scope.querySelector('[data-q="notes"]').value;
+    const prev = b.status;
+    b.current = page; b.notes = notes;
+    if (status === prev) {
+      if (b.total && page >= b.total) status = 'Finished';
+      else if (page > 0 && (prev === 'Wishlist' || prev === 'Bought')) status = 'Currently Reading';
+      else if (prev === 'Finished' && b.total && page < b.total) status = 'Currently Reading';
+    }
+    b.status = status;
+    normalise(b); stampYears(b, prev);
+    openQuick.delete(b.id); if (openVol === b.id) openVol = null;
+    save(); renderAll();
+    toast(b.status === 'Finished' && prev !== 'Finished' ? 'Marked as finished' : 'Progress saved');
+  }
+  $('list').addEventListener('click', e => {
+    const po = e.target.closest('[data-pk]');
+    if (po) {
+      const k = po.dataset.pk; openPoster.add(k); renderList();
+      requestAnimationFrame(() => { const el = [...$('list').children].find(x => x.dataset.id === k || x.dataset.key === k); if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); });
+      return;
+    }
+    const tile = e.target.closest('[data-vol]');
+    if (tile) { openVol = openVol === tile.dataset.vol ? null : tile.dataset.vol; renderList(); return; }
+    const btn = e.target.closest('[data-act]'); if (!btn) return;
+    const act = btn.dataset.act;
+    const sc = btn.closest('[data-id]');
+    const b = sc ? find(sc.dataset.id) : null;
+    const ser = btn.closest('[data-key]');
+    const key = ser ? ser.dataset.key : null;
+    if (act === 'quick' && b) { openQuick.has(b.id) ? openQuick.delete(b.id) : openQuick.add(b.id); renderList(); }
+    else if (act === 'cancelq' && b) { openQuick.delete(b.id); if (openVol === b.id) openVol = null; renderList(); }
+    else if (act === 'collapse') { const fr = btn.closest('[data-fk]'); openPoster.delete(fr ? fr.dataset.fk : sc ? sc.dataset.id : key); renderList(); }
+    else if (act === 'edit' && b) openForm(b.id);
+    else if (act === 'addvols' && b) openForm(null, { baseId: b.id, title: b.title, author: b.author, genre: b.genre, language: b.language, edition: b.edition, cover: b.cover, year: b.year, total: b.total, price: b.price, multi: true, from: isVol(b) ? Math.floor(b.volume) + 1 : 2, to: isVol(b) ? Math.floor(b.volume) + 10 : 10 });
+    else if (act === 'front' && b) {
+      const was = !!b.front;
+      state.books.filter(x => isVol(b) && isVol(x) && skey(x) === skey(b)).forEach(x => { x.front = false; });
+      b.front = !was; save(); renderAll(); toast(b.front ? 'Shown on the series card' : 'Series cover reset to automatic');
+    }
+    else if (act === 'hide' && b) { b.hidden = !b.hidden; openQuick.delete(b.id); save(); renderAll(); toast(b.hidden ? 'Entry hidden' : 'Entry visible again'); }
+    else if (act === 's-hide' && key) { const all = vols(key), h = !all.every(x => x.hidden); all.forEach(x => { x.hidden = h; }); openVol = null; openBulk = null; save(); renderAll(); toast(h ? 'Series hidden' : 'Series visible again'); }
+    else if (act === 'del' && b) {
+      choose('Remove entry', `Remove “${b.title}”${isVol(b) ? ' volume ' + volLabel(b.volume) : ''} from the archive?`, [
+        { label: 'Keep', value: false }, { label: 'Remove', value: true, cls: 'danger solid' }
+      ]).then(ok => { if (ok) { state.books = state.books.filter(x => x.id !== b.id); openQuick.delete(b.id); if (openVol === b.id) openVol = null; save(); renderAll(); toast('Entry removed'); } });
+    }
+    else if (act === 'step' && sc) {
+      const inp = sc.querySelector('[data-q="page"]'), bb = b || {};
+      let v = num(inp.value) + num(btn.dataset.d);
+      v = Math.max(0, bb.total ? Math.min(v, bb.total) : v); inp.value = v;
+    }
+    else if (act === 'saveq' && b) saveQuick(sc, b);
+    else if (act === 's-bulk' && key) { openBulk = openBulk === key ? null : key; renderList(); }
+    else if (act === 's-bulk-close') { openBulk = null; renderList(); }
+    else if (act === 's-bulk-apply' && key) {
+      const box = btn.closest('[data-bulk]');
+      const a = num(box.querySelector('[data-b="from"]').value), z = num(box.querySelector('[data-b="to"]').value);
+      const lo = Math.min(a, z), hi = Math.max(a, z), st = box.querySelector('[data-b="status"]').value;
+      let n = 0;
+      vols(key).forEach(v => { if (v.volume >= lo && v.volume <= hi) { const pv = v.status; v.status = st; if (st === 'Wishlist' || st === 'Bought') v.current = 0; normalise(v); stampYears(v, pv); n++; } });
+      openBulk = null; save(); renderAll(); toast(`${n} volume${n === 1 ? '' : 's'} updated`);
+    }
+    else if (act === 's-add' && key) {
+      const all = vols(key), last = all[all.length - 1]; if (!last) return;
+      const nxt = Math.floor(last.volume) + 1;
+      openForm(null, { title: last.title, author: last.author, genre: last.genre, language: last.language, edition: last.edition, cover: last.cover, year: last.year, total: last.total, price: last.price, multi: true, from: nxt, to: nxt + 9 });
+    }
+    else if (act === 's-del' && key) {
+      const all = vols(key); if (!all.length) return;
+      choose('Delete series', `Delete all ${all.length} volumes of “${all[0].title}”?`, [
+        { label: 'Keep', value: false }, { label: 'Delete all', value: true, cls: 'danger solid' }
+      ]).then(ok => { if (ok) { const ids = new Set(all.map(x => x.id)); state.books = state.books.filter(x => !ids.has(x.id)); openVol = null; openBulk = null; save(); renderAll(); toast('Series deleted'); } });
+    }
+  });
+  $('list').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.matches('[data-q="page"]')) { e.preventDefault(); const s = e.target.closest('[data-id]'); if (s) s.querySelector('[data-act="saveq"]').click(); }
+  });
+
+  /* ---------- filters / goal ---------- */
+  $('search').addEventListener('input', e => { f.q = e.target.value; renderList(); });
+  $('sort').addEventListener('change', e => { f.sort = e.target.value; renderList(); });
+  $('genreSel').addEventListener('change', e => { f.genre = e.target.value; renderList(); });
+  $('langSel').addEventListener('change', e => { f.lang = e.target.value; renderList(); });
+  $('statusChips').addEventListener('click', e => {
+    const c = e.target.closest('.chip'); if (!c) return; f.status = c.dataset.status; renderFilters(); renderList();
+  });
+  $('hiddenBtn').onclick = () => { f.hidden = !f.hidden; renderList(); };
+  $('clearBtn').onclick = () => { Object.assign(f, { q: '', status: 'All', genre: 'All', lang: 'All', sort: 'new' }); $('search').value = ''; $('sort').value = 'new'; renderFilters(); renderList(); };
+  document.querySelector('.stats').addEventListener('click', e => {
+    const b = e.target.closest('[data-st]'); if (!b) return;
+    f.status = (b.dataset.st === 'All' || f.status === b.dataset.st) ? 'All' : b.dataset.st;
+    renderFilters(); renderList();
+  });
+  document.querySelector('.goal-edit').addEventListener('click', e => {
+    const b = e.target.closest('[data-g]'); if (!b) return;
+    state.goal = clamp(Math.round(num(state.goal, 12)) + num(b.dataset.g), 1, 999); $('goalInput').value = state.goal; save(); renderStats();
+  });
+  $('goalInput').addEventListener('input', e => { const v = Math.round(num(e.target.value)); if (v >= 1) { state.goal = Math.min(v, 999); save(); renderStats(); } });
+  $('goalInput').addEventListener('blur', renderStats);
+  $('currInput').addEventListener('input', e => { state.currency = e.target.value.trim().slice(0, 4); save(); renderList(); });
+
+  /* ---------- export / import ---------- */
+  const dataBtn = $('dataBtn'), dataMenu = $('dataMenu');
+  const setMenu = open => { dataMenu.hidden = !open; dataBtn.setAttribute('aria-expanded', String(open)); };
+  dataBtn.onclick = e => { e.stopPropagation(); setMenu(dataMenu.hidden); if (!dataMenu.hidden) dataMenu.querySelector('.mi').focus(); };
+  dataMenu.addEventListener('click', () => setMenu(false));
+  document.addEventListener('click', e => { if (!dataMenu.hidden && !e.target.closest('.menu')) setMenu(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !dataMenu.hidden) { setMenu(false); dataBtn.focus(); } });
+  $('addBtn').onclick = $('fabAdd').onclick = () => openForm();
+  $('collapseAll').onclick = () => { openPoster.clear(); renderList(); };
+  $('layoutSeg').addEventListener('click', e => { const bt = e.target.closest('[data-lay]'); if (!bt) return; state.layout = bt.dataset.lay; persistLocal(); renderList(); });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'n' && e.key !== 'N') return;
+    if (e.ctrlKey || e.metaKey || e.altKey || e.target.closest('input,textarea,select,[contenteditable]')) return;
+    if (document.querySelector('dialog[open]')) return;
+    e.preventDefault(); openForm();
+  });
+  $('delEntry').onclick = () => {
+    const b = find(editingId); if (!b) return; closeForm();
+    choose('Remove entry', `Remove “${b.title}” from the archive?`, [{ label: 'Keep', value: false }, { label: 'Remove', value: true, cls: 'danger solid' }])
+      .then(ok => { if (ok) { state.books = state.books.filter(x => x.id !== b.id); openQuick.delete(b.id); save(); renderAll(); toast('Entry removed'); } });
+  };
+  const guideDlg = $('guideDlg');
+  $('guideBtn').onclick = () => openDlg(guideDlg);
+  $('closeGuide').onclick = () => closeDlg(guideDlg);
+  guideDlg.addEventListener('click', e => { if (e.target === guideDlg) closeDlg(guideDlg); });
+  async function getDownloads() {
+    try { return window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch (e) { return null; }
+  }
+  function copyFallback(json) {
+    showText(json, 'Downloading isn’t available in this view. Copy this text and save it in a file ending in .json. You can paste it back here later to import it.');
+  }
+  function showText(text, help) {
+    $('txtHelp').textContent = help; $('txtArea').value = text; openDlg($('txtDlg'));
+    $('txtArea').focus(); $('txtArea').select();
+  }
+  $('closeTxt').onclick = () => closeDlg($('txtDlg'));
+  $('txtCopy').onclick = () => {
+    const a = $('txtArea'); a.focus(); a.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    if (!ok && navigator.clipboard) navigator.clipboard.writeText(a.value).then(() => toast('Copied'), () => toast('Press Ctrl+C or long-press to copy'));
+    else toast(ok ? 'Copied' : 'Press Ctrl+C or long-press to copy');
+  };
+  $('txtImport').onclick = () => { const t = $('txtArea').value.trim(); if (!t) { toast('Paste backup text first'); return; } closeDlg($('txtDlg')); importText(t); };
+  $('exportBtn').onclick = async () => {
+    const json = JSON.stringify({ app: 'reading-archive', version: 1, exported: new Date().toISOString(), books: state.books, goal: state.goal, currency: state.currency, covers: state.covers }, null, 2);
+    const name = `reading-archive-${new Date().toISOString().slice(0, 10)}.json`;
+    const dl = await getDownloads();
+    if (dl) {
+      try { await dl.save({ filename: name, data: json }); toast('Backup saved'); }
+      catch (err) { if (err && err.code === 'declined') toast('Export cancelled'); else copyFallback(json); }
+      return;
+    }
+    try {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+      a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast('Backup exported');
+    } catch (err) { copyFallback(json); }
+  };
+  $('pasteBtn').onclick = () => { showText('', 'Paste the text of a backup (.json) here, then press Import pasted text.'); };
+  $('importBtn').onclick = () => $('importFile').click();
+  $('resetBtn').onclick = async () => {
+    const v = await choose('Reset tracker', 'This clears every book, cover and your yearly goal here and on all your synced devices. Export a JSON backup first if you might want them back.', [
+      { label: 'Cancel', value: 'cancel' }, { label: 'Reset, keep samples', value: 'samples' }, { label: 'Reset to empty', value: 'empty', cls: 'danger solid' }
+    ]);
+    if (v !== 'samples' && v !== 'empty') return;
+    state.books = []; state.covers = {}; state.goal = 12; state.currency = 'RM';
+    if (v === 'samples') seed();
+    f.q = ''; f.status = 'All'; f.genre = 'All'; f.lang = 'All'; f.sort = 'new'; $('search').value = '';
+    openQuick.clear(); openVol = null; openBulk = null;
+    save(); renderAll(); toast('Tracker reset');
+  };
+  $('importFile').addEventListener('change', e => {
+    const inp = e.target; const file = inp.files[0]; if (!file) return;
+    const rd = new FileReader();
+    rd.onload = async () => { await importText(rd.result); inp.value = ''; };
+    rd.onerror = () => { toast('Could not read that file'); inp.value = ''; };
+    rd.readAsText(file);
+  });
+  async function importText(text) {
+      try {
+        const d = JSON.parse(text);
+        const list = Array.isArray(d) ? d : d.books;
+        if (!Array.isArray(list)) throw new Error('bad');
+        const clean = list.filter(x => x && typeof x.title === 'string' && x.title.trim()).map(x => normalise({
+          id: String(x.id || uid()), title: x.title.trim(), author: x.author || '', genre: Array.isArray(x.genre) ? x.genre.join(', ') : (x.genre || ''), language: x.language || '', edition: x.edition || '', volume: x.volume, vlabel: x.vlabel, front: x.front, year: x.year, boughtYear: x.boughtYear, startedYear: x.startedYear, cover: x.cover || '', hidden: x.hidden,
+          status: x.status, total: x.total, current: x.current, rating: x.rating, price: x.price, notes: x.notes || '',
+          added: num(x.added, Date.now()), finishedAt: x.finishedAt || null }));
+        const choice = await choose('Import backup', `Found ${clean.length} book${clean.length === 1 ? '' : 's'} in this file.`, [
+          { label: 'Cancel', value: 'cancel' }, { label: 'Merge', value: 'merge' }, { label: 'Replace library', value: 'replace', cls: 'solid' }
+        ]);
+        if (choice === 'replace') { state.books = clean; state.covers = {}; }
+        else if (choice === 'merge') { const map = new Map(state.books.map(b => [b.id, b])); clean.forEach(b => map.set(b.id, b)); state.books = [...map.values()]; }
+        else return;
+        if (!Array.isArray(d)) {
+          if (num(d.goal) >= 1) state.goal = Math.round(num(d.goal));
+          if (typeof d.currency === 'string') state.currency = d.currency.slice(0, 4);
+          if (d.covers && typeof d.covers === 'object') Object.keys(d.covers).forEach(k => { const v = d.covers[k]; if (typeof v === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(v)) state.covers[k] = v; });
+        }
+        save(); renderAll(); toast('Import complete');
+      } catch (err) { toast('Import failed — not a valid backup file'); }
+  }
+
+  /* ---------- init ---------- */
+  load(); applyMode(); applyView(); renderAll(); loadCovers().then(() => { renderAll(); startSync(); });
+  const tick = () => { if (state.theme === 'sub') $('sbClock').textContent = new Date().toLocaleTimeString([], { hour12: false }); };
+  tick(); setInterval(tick, 1000);
+  window.addEventListener('storage', e => { if (e.key === KEY) { load(); applyMode(); applyView(); renderAll(); } });
+})();
+</script>
+
+<script>if('serviceWorker' in navigator&&location.protocol!=='file:'){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
+</body></html>
